@@ -464,6 +464,167 @@ class RestrictionSummaryViewTests(TestCase):
         self.assertEqual(res.status_code, 403)
 
 
+class ReceiptPDFOverflowTests(TestCase):
+    """A long, unbroken payment reference (this app's own
+    MCSS-<32-hex>-... format, or a real gateway's) must not overflow the
+    receipt PDF's fixed-width Reference column — see
+    common.pdf.soft_break, confirmed the only fix that actually works
+    against xhtml2pdf's text layout. Inspects the actual rendered HTML
+    (pisa.CreatePDF mocked out) rather than just asserting a 200."""
+
+    def setUp(self):
+        from datetime import date
+
+        from apps.academics.models import Student
+        from apps.configuration.models import AcademicSession
+
+        session = AcademicSession.objects.create(
+            name="2026/2027", start_date=date(2026, 9, 1), end_date=date(2027, 7, 31), is_current=True,
+        )
+        student_user = User.objects.create(full_name="Student One", email="stu1@x.io", user_type="student", is_active=True)
+        self.student = Student.objects.create(user=student_user)
+        from .models import Invoice, Payment
+
+        invoice = Invoice.objects.create(
+            student=self.student, session=session, description="Tuition Fee", amount=Decimal("15000"),
+        )
+        self.long_reference = "MCSS-" + "".join(f"{i % 10}" for i in range(40)) + "-suffix"
+        self.payment = Payment.objects.create(invoice=invoice, amount=Decimal("15000"), reference=self.long_reference)
+        self.client = APIClient()
+
+    def _rendered_html(self):
+        from unittest.mock import patch
+
+        self.client.force_authenticate(self.student.user)
+        with patch("apps.finance.views.pisa.CreatePDF") as mock_create:
+            mock_create.return_value.err = 0
+            self.client.get(f"/api/v1/finance/payments/{self.payment.id}/receipt.pdf")
+        return mock_create.call_args[0][0]
+
+    def test_long_reference_is_broken_up_with_spaces_not_left_unbroken(self):
+        html = self._rendered_html()
+        self.assertNotIn(self.long_reference, html)  # the raw unbroken string never appears as-is
+
+    def test_soft_broken_reference_reconstructs_to_the_real_value(self):
+        import re
+
+        html = self._rendered_html()
+        match = re.search(r'class="col-reference">([^<]+)</td>', html)
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(1).replace(" ", ""), self.long_reference)
+
+    def test_short_reference_is_unaffected(self):
+        from .models import Payment
+
+        self.payment.reference = "SHORT-REF-123"
+        self.payment.save(update_fields=["reference"])
+        html = self._rendered_html()
+        self.assertIn("SHORT-REF-123", html)
+
+
+class ReferencePrefixTests(TestCase):
+    """Invoice.reference_prefix: the first 3 letters of whatever names the
+    invoice (category name, admission-workflow purpose, or free-text
+    description, in that priority order), used to prefix the reference
+    InvoicePayView builds for Paystack — e.g. "Tuition Fee" -> "TUI"."""
+
+    def setUp(self):
+        from datetime import date
+
+        from apps.academics.models import Student
+        from apps.configuration.models import AcademicSession, FeeCategory
+        from .models import Invoice
+
+        self.session = AcademicSession.objects.create(
+            name="2026/2027", start_date=date(2026, 9, 1), end_date=date(2027, 7, 31), is_current=True,
+        )
+        student_user = User.objects.create(full_name="Student One", email="stu1@x.io", user_type="student", is_active=True)
+        self.student = Student.objects.create(user=student_user)
+        self.Invoice = Invoice
+        self.FeeCategory = FeeCategory
+
+    def test_derives_from_the_category_name_when_one_is_set(self):
+        category = self.FeeCategory.objects.create(name="Tuition Fee", is_recurring=True)
+        invoice = self.Invoice.objects.create(
+            student=self.student, session=self.session, category=category, description="whatever", amount=Decimal("100"),
+        )
+        self.assertEqual(invoice.reference_prefix, "TUI")
+
+    def test_category_name_wins_over_description_when_both_present(self):
+        category = self.FeeCategory.objects.create(name="Library Fee", is_recurring=True)
+        invoice = self.Invoice.objects.create(
+            student=self.student, session=self.session, category=category, description="Something else entirely", amount=Decimal("100"),
+        )
+        self.assertEqual(invoice.reference_prefix, "LIB")
+
+    def test_falls_back_to_purpose_label_when_no_category(self):
+        invoice = self.Invoice.objects.create(
+            student=self.student, session=self.session, purpose=self.Invoice.Purpose.ACCEPTANCE_FEE,
+            description="Acceptance Fee", amount=Decimal("100"),
+        )
+        self.assertEqual(invoice.reference_prefix, "ACC")
+
+    def test_falls_back_to_description_when_no_category_or_purpose(self):
+        invoice = self.Invoice.objects.create(
+            student=self.student, session=self.session, description="Sportswear", amount=Decimal("100"),
+        )
+        self.assertEqual(invoice.reference_prefix, "SPO")
+
+    def test_non_letters_are_stripped_and_result_is_uppercased(self):
+        category = self.FeeCategory.objects.create(name="  ict/technology fee", is_recurring=True)
+        invoice = self.Invoice.objects.create(
+            student=self.student, session=self.session, category=category, description="x", amount=Decimal("100"),
+        )
+        self.assertEqual(invoice.reference_prefix, "ICT")
+
+    def test_a_source_with_no_letters_at_all_falls_back_to_gen(self):
+        invoice = self.Invoice.objects.create(
+            student=self.student, session=self.session, description="123", amount=Decimal("100"),
+        )
+        self.assertEqual(invoice.reference_prefix, "GEN")
+
+
+class InvoicePayViewReferenceTests(TestCase):
+    """The reference InvoicePayView actually sends to Paystack starts with
+    the invoice's derived prefix, per the school's requested format
+    ("TFS_..." for a Tuition-Fee-style ticket)."""
+
+    def setUp(self):
+        from datetime import date
+        from unittest.mock import patch
+
+        from apps.academics.models import Student
+        from apps.configuration.models import AcademicSession, FeeCategory
+        from .models import Invoice
+
+        self.session = AcademicSession.objects.create(
+            name="2026/2027", start_date=date(2026, 9, 1), end_date=date(2027, 7, 31), is_current=True,
+        )
+        secret_setting = SystemSetting(key="payments.paystack.secret_key", group="payments", is_secret=True)
+        secret_setting.set_value("sk_test_fakefakefake")
+        secret_setting.save()
+
+        student_user = User.objects.create(full_name="Student One", email="stu1@x.io", user_type="student", is_active=True)
+        self.student = Student.objects.create(user=student_user)
+        category = FeeCategory.objects.create(name="Tuition Fee", is_recurring=True)
+        self.invoice = Invoice.objects.create(
+            student=self.student, session=self.session, category=category, description="Tuition Fee", amount=Decimal("100000"),
+        )
+        self.client = APIClient()
+        self._patcher = patch("apps.finance.views.paystack.initialize_transaction")
+        self.mock_init = self._patcher.start()
+        self.mock_init.return_value = {"authorization_url": "https://paystack.test/pay/abc", "access_code": "abc", "reference": "will-be-overwritten"}
+        self.addCleanup(self._patcher.stop)
+
+    def test_reference_is_prefixed_with_the_fee_categorys_letters(self):
+        self.client.force_authenticate(self.student.user)
+        res = self.client.post(f"/api/v1/finance/invoices/{self.invoice.id}/pay", {}, format="json")
+        self.assertEqual(res.status_code, 200, res.json())
+        self.assertTrue(res.json()["data"]["reference"].startswith("TUI_"))
+        sent_reference = self.mock_init.call_args.kwargs["reference"]
+        self.assertTrue(sent_reference.startswith("TUI_"))
+
+
 class PaystackPaymentTestBase(TestCase):
     """Covers the actual bug report: a real successful Paystack payment
     left the ticket unpaid and no Payment record behind, because nothing

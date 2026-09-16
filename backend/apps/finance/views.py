@@ -501,7 +501,7 @@ class PaymentReceiptPDFView(APIView):
         except UnicodeEncodeError:
             currency_symbol = (settings_by_key.get("general.currency") or "") + " "
 
-        from common.pdf import absolute_media_url
+        from common.pdf import absolute_media_url, soft_break
 
         html = render_to_string("finance/receipt.html", {
             "show_branding": bool(settings_by_key.get("appearance.invoice_branding_enabled", True)),
@@ -519,7 +519,7 @@ class PaymentReceiptPDFView(APIView):
             "invoice_number": payment.invoice.invoice_number,
             "invoice_description": payment.invoice.description,
             "method": payment.get_method_display(),
-            "reference": payment.reference or "—",
+            "reference": soft_break(payment.reference) or "—",
             "amount": f"{payment.amount:,.2f}",
             "generated_at": timezone.now().strftime("%d %b %Y, %I:%M %p"),
         })
@@ -559,7 +559,7 @@ class InvoicePayView(APIView):
                 status=503,
             )
 
-        reference = f"MCSS-{invoice.id.hex}-{secrets.token_hex(4)}"
+        reference = f"{invoice.reference_prefix}_{invoice.id.hex}-{secrets.token_hex(4)}"
         callback_url = request.build_absolute_uri("/student/finance")
         data = paystack.initialize_transaction(
             email=request.user.email or "no-reply@mountcarmel.edu",

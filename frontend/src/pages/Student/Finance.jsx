@@ -26,6 +26,7 @@ export default function StudentFinance() {
   const [downloadingId, setDownloadingId] = useState(null);
   const [purchasingId, setPurchasingId] = useState(null);
   const [purchaseMessage, setPurchaseMessage] = useState('');
+  const [selectedFeeItemId, setSelectedFeeItemId] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [verifyMessage, setVerifyMessage] = useState('');
   const [verifyError, setVerifyError] = useState('');
@@ -83,12 +84,18 @@ export default function StudentFinance() {
           ? `Ticket created for ${item.name} — pay it below whenever you're ready.`
           : `You already have an open ticket for ${item.name} — pay it below whenever you're ready.`,
       );
+      setSelectedFeeItemId('');
       reload();
     } catch (err) {
       setPayError(err instanceof ApiError ? err.message : 'Could not create a ticket for this fee item.');
     } finally {
       setPurchasingId(null);
     }
+  };
+
+  const handleCreateSelectedTicket = () => {
+    const item = feeItems.find((f) => f.id === selectedFeeItemId);
+    if (item) handlePurchase(item);
   };
 
   const handlePay = async (invoice) => {
@@ -177,25 +184,36 @@ export default function StudentFinance() {
         )}
 
         {!loading && feeItems.length > 0 && (
-          <div>
+          <Card padding="lg">
             <h2 className="font-headline-md text-headline-sm text-primary mb-md">Available Fee Items</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-md">
-              {feeItems.map((item) => (
-                <Card key={item.id} padding="lg" className="flex flex-col gap-sm">
-                  <p className="font-label-md text-label-md font-bold text-on-surface">{item.name}</p>
-                  <p className="font-headline-md text-headline-sm text-primary">₦{Number(item.amount).toLocaleString()}</p>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={purchasingId === item.id}
-                    onClick={() => handlePurchase(item)}
-                  >
-                    {purchasingId === item.id ? 'Creating…' : 'Create Ticket'}
-                  </Button>
-                </Card>
-              ))}
+            <div className="flex flex-col sm:flex-row sm:items-end gap-sm">
+              <div className="flex-1">
+                <label className="font-label-sm text-label-sm text-on-surface-variant mb-xs block" htmlFor="fee-item-select">
+                  Fee Item
+                </label>
+                <select
+                  id="fee-item-select"
+                  className="mcss-field w-full px-md"
+                  value={selectedFeeItemId}
+                  onChange={(e) => setSelectedFeeItemId(e.target.value)}
+                >
+                  <option value="" disabled>Select a fee item…</option>
+                  {feeItems.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name} — ₦{Number(item.amount).toLocaleString()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                variant="secondary"
+                disabled={!selectedFeeItemId || purchasingId === selectedFeeItemId}
+                onClick={handleCreateSelectedTicket}
+              >
+                {purchasingId === selectedFeeItemId ? 'Creating…' : 'Create Ticket'}
+              </Button>
             </div>
-          </div>
+          </Card>
         )}
 
         {loading ? (

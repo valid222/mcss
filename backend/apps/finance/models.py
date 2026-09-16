@@ -80,6 +80,20 @@ class Invoice(BaseModel):
         super().save(*args, **kwargs)
 
     @property
+    def reference_prefix(self):
+        """3-letter payment-reference prefix so an online-payment reference
+        visually signals what it was for at a glance (e.g. "Tuition Fee" ->
+        "TUI_..."). Simple, predictable rule: the first 3 alphabetic
+        characters of whatever names this invoice — its FeeCategory when it
+        has one (every bulk and self-service ticket does), else the
+        admission-workflow purpose label, else the free-text description —
+        uppercased, non-letters stripped. Used by InvoicePayView when
+        building the reference sent to Paystack."""
+        source = self.category.name if self.category_id else (self.get_purpose_display() if self.purpose else self.description)
+        letters = "".join(ch for ch in (source or "").upper() if ch.isalpha())
+        return letters[:3].ljust(3, "X") if letters else "GEN"
+
+    @property
     def amount_paid(self):
         total = self.payments.filter(status=Payment.Status.COMPLETED).aggregate(total=models.Sum("amount"))["total"]
         return total or 0

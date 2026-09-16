@@ -13,10 +13,23 @@
   .meta-table { width: 100%; margin-bottom: 16px; }
   .meta-table td { padding: 2px 0; font-size: 10pt; }
   .meta-label { color: #555555; width: 130px; }
-  .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .items-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 10px; }
   .items-table th { background-color: {{ primary_color }}; color: #ffffff; text-align: left; padding: 8px 10px; font-size: 10pt; }
-  .items-table td { padding: 8px 10px; border-bottom: 1px solid #dddddd; font-size: 10pt; }
+  .items-table td {
+    padding: 8px 10px; border-bottom: 1px solid #dddddd; font-size: 10pt;
+    word-wrap: break-word; overflow-wrap: break-word; word-break: break-all;
+  }
+  /* Explicit per-column classes, not :nth-child — xhtml2pdf 0.2.17's CSS
+     support doesn't reliably cover that pseudo-class. Description gets the
+     most room; Reference (long unbroken Paystack/MCSS strings — the field
+     that actually overflowed) and Method are narrower and fixed so they
+     never push Amount off the page. */
+  .col-description { width: 40%; }
+  .col-method { width: 18%; }
+  .col-reference { width: 24%; }
+  .col-amount { width: 18%; }
   .amount-row td { font-weight: bold; font-size: 12pt; padding-top: 12px; }
+  .meta-table td { word-wrap: break-word; overflow-wrap: break-word; }
   .footer { margin-top: 40px; font-size: 8.5pt; color: #888888; text-align: center; }
 </style>
 </head>
@@ -41,18 +54,23 @@
 
   <table class="items-table">
     <thead>
-      <tr><th>Description</th><th>Method</th><th>Reference</th><th style="text-align:right;">Amount</th></tr>
+      <tr>
+        <th class="col-description">Description</th>
+        <th class="col-method">Method</th>
+        <th class="col-reference">Reference</th>
+        <th class="col-amount" style="text-align:right;">Amount</th>
+      </tr>
     </thead>
     <tbody>
       <tr>
-        <td>{{ invoice_description }}</td>
-        <td>{{ method }}</td>
-        <td>{{ reference }}</td>
-        <td style="text-align:right;">{{ currency_symbol }}{{ amount }}</td>
+        <td class="col-description">{{ invoice_description }}</td>
+        <td class="col-method">{{ method }}</td>
+        <td class="col-reference">{{ reference }}</td>
+        <td class="col-amount" style="text-align:right;">{{ currency_symbol }}{{ amount }}</td>
       </tr>
       <tr class="amount-row">
         <td colspan="3" style="text-align:right;">Amount Paid</td>
-        <td style="text-align:right;">{{ currency_symbol }}{{ amount }}</td>
+        <td class="col-amount" style="text-align:right;">{{ currency_symbol }}{{ amount }}</td>
       </tr>
     </tbody>
   </table>

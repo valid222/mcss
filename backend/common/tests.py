@@ -1,6 +1,6 @@
 from django.test import RequestFactory, TestCase
 
-from .pdf import absolute_media_url
+from .pdf import absolute_media_url, soft_break
 
 
 class AbsoluteMediaUrlTests(TestCase):
@@ -30,3 +30,33 @@ class AbsoluteMediaUrlTests(TestCase):
     def test_empty_or_none_returns_empty_string(self):
         self.assertEqual(absolute_media_url(self.request, ""), "")
         self.assertEqual(absolute_media_url(self.request, None), "")
+
+
+class SoftBreakTests(TestCase):
+    """A long unbroken token (a payment reference — this app's own
+    MCSS-<32-hex>-... format has no whitespace) runs straight off a fixed-
+    width PDF table cell otherwise: confirmed live that xhtml2pdf's
+    ReportLab-based text layout ignores CSS word-break/overflow-wrap on
+    unbroken text, AND does not treat U+200B (zero-width space) as a break
+    point either (it rendered as a visible tofu glyph and still didn't
+    wrap) — a real space is the one thing confirmed to actually work."""
+
+    def test_inserts_a_space_every_n_characters(self):
+        self.assertEqual(soft_break("abcdefghij", every=4), "abcd efgh ij")
+
+    def test_short_value_is_unchanged(self):
+        self.assertEqual(soft_break("abc", every=14), "abc")
+
+    def test_exact_multiple_has_no_trailing_space(self):
+        self.assertEqual(soft_break("abcdefgh", every=4), "abcd efgh")
+
+    def test_empty_or_none_passes_through(self):
+        self.assertEqual(soft_break(""), "")
+        self.assertIsNone(soft_break(None))
+
+    def test_the_stored_value_round_trips_by_stripping_spaces_back_out(self):
+        # Proves the transform is purely cosmetic/reversible — nothing about
+        # the real reference identity is lost, only how it's laid out on
+        # the printed page.
+        original = "MCSS-49dc3925beb64d298d755758c516f1ed-e2etest1"
+        self.assertEqual(soft_break(original).replace(" ", ""), original)

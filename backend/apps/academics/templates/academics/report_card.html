@@ -18,35 +18,64 @@
   .title-bar { background-color: {{ secondary_color }}; color: #ffffff; text-align: center;
                padding: 5px 0; font-size: 11pt; font-weight: bold; margin: 6px 0; letter-spacing: 1px; }
 
-  .bios-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
-  .bios-table td { border: 1px solid #000; padding: 4px 6px; width: 33.33%; font-size: 8pt; }
+  .bios-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
+  .bios-table td {
+    border: 1px solid #000; padding: 4px 6px; width: 33.33%; font-size: 8pt;
+    word-wrap: break-word; overflow-wrap: break-word;
+  }
   .bios-label { font-weight: bold; color: {{ secondary_color }}; display: block; font-size: 6.5pt; letter-spacing: 0.5px; }
 
   .section-title { background-color: {{ primary_color }}; color: #ffffff; text-align: center;
                     padding: 4px 0; font-size: 9.5pt; font-weight: bold; margin: 8px 0 0 0; letter-spacing: 0.5px; }
 
-  .subjects-table { width: 100%; border-collapse: collapse; }
-  .subjects-table th, .subjects-table td { border: 1px solid #000; padding: 3px 4px; text-align: center; font-size: 7pt; }
+  /* Fixed layout with explicit per-column widths (summing to 100%) — with
+     12 columns crammed onto one A4 width, letting cells size themselves off
+     content (the default) lets a long subject name or remark blow the whole
+     table past the page edge. SUBJECTS and REMARK get the most room since
+     they're the only free-text columns; everything else is a short number. */
+  .subjects-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .subjects-table th, .subjects-table td {
+    border: 1px solid #000; padding: 3px 4px; text-align: center; font-size: 7pt;
+    word-wrap: break-word; overflow-wrap: break-word;
+  }
   .subjects-table th { background-color: #eeeeee; }
   .subjects-table td.subject-name { text-align: left; }
+  .subjects-table .col-sn { width: 4%; }
+  .subjects-table .col-subject { width: 17%; }
+  .subjects-table .col-score { width: 7%; }
+  .subjects-table .col-remark { width: 16%; }
   .summary-row td { text-align: right; font-weight: bold; font-size: 7.5pt; background-color: #f5f5f5; }
 
   .analysis-container { width: 100%; margin-top: 8px; }
   .analysis-container td { vertical-align: top; width: 50%; padding-right: 6px; }
-  .analysis-table { width: 100%; border-collapse: collapse; }
-  .analysis-table td { border: 1px solid #000; padding: 3.5px 6px; font-size: 7.5pt; }
+  .analysis-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .analysis-table td {
+    border: 1px solid #000; padding: 3.5px 6px; font-size: 7.5pt;
+    word-wrap: break-word; overflow-wrap: break-word;
+  }
   .analysis-table td.label { font-weight: bold; width: 55%; }
   .signature-cell { text-align: center; padding: 3px 6px; }
   .signature-cell img { height: 30px; }
 
-  .rating-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-  .rating-table th, .rating-table td { border: 1px solid #000; padding: 3px; text-align: center; font-size: 7pt; }
+  .rating-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 4px; }
+  .rating-table th, .rating-table td {
+    border: 1px solid #000; padding: 3px; text-align: center; font-size: 7pt;
+    word-wrap: break-word; overflow-wrap: break-word;
+  }
   .rating-table th { background-color: #eeeeee; }
   .rating-table td.skill-name { text-align: left; }
+  .rating-table .col-skill { width: 58%; }
 
-  .grading-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .grading-table td { border: 1px solid #000; padding: 3px; text-align: center; font-size: 6.5pt; }
-  .grading-cell { background-color: {{ primary_color }}; color: #ffffff; font-weight: bold; }
+  /* grading-table's column count is dynamic (one per configured GradeScale
+     band) — table-layout: fixed alone would squeeze them evenly regardless
+     of count, which is exactly right here since every cell only ever holds
+     a short range/letter, never free text. */
+  .grading-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 8px; }
+  .grading-table td {
+    border: 1px solid #000; padding: 3px; text-align: center; font-size: 6.5pt;
+    word-wrap: break-word; overflow-wrap: break-word;
+  }
+  .grading-cell { background-color: {{ primary_color }}; color: #ffffff; font-weight: bold; width: 12%; }
   .grade-range { background-color: #f5f5f5; }
   .grade-letter { background-color: {{ primary_color }}; color: #ffffff; font-weight: bold; }
 
@@ -90,23 +119,25 @@
   <div class="section-title">COGNITIVE ASSESSMENT</div>
   <table class="subjects-table">
     <tr>
-      <th>SN</th><th>SUBJECTS</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total 100%</th>
-      <th>Class Avg.</th><th>Class Max</th><th>Class Min</th><th>Position</th><th>Grade</th><th>REMARK</th>
+      <th class="col-sn">SN</th><th class="col-subject">SUBJECTS</th>
+      <th class="col-score">CA1</th><th class="col-score">CA2</th><th class="col-score">Exam</th><th class="col-score">Total 100%</th>
+      <th class="col-score">Class Avg.</th><th class="col-score">Class Max</th><th class="col-score">Class Min</th>
+      <th class="col-score">Position</th><th class="col-score">Grade</th><th class="col-remark">REMARK</th>
     </tr>
     {% for row in subject_rows %}
     <tr>
-      <td>{{ forloop.counter }}</td>
-      <td class="subject-name">{{ row.subject }}</td>
-      <td>{{ row.ca1_score|default:"—" }}</td>
-      <td>{{ row.ca2_score|default:"—" }}</td>
-      <td>{{ row.exam_score|default:"—" }}</td>
-      <td>{{ row.total }}</td>
-      <td>{{ row.class_avg|default:"—" }}</td>
-      <td>{{ row.class_max|default:"—" }}</td>
-      <td>{{ row.class_min|default:"—" }}</td>
-      <td>{{ row.position }}</td>
-      <td>{{ row.grade }}</td>
-      <td>{{ row.remark|default:"—" }}</td>
+      <td class="col-sn">{{ forloop.counter }}</td>
+      <td class="col-subject subject-name">{{ row.subject }}</td>
+      <td class="col-score">{{ row.ca1_score|default:"—" }}</td>
+      <td class="col-score">{{ row.ca2_score|default:"—" }}</td>
+      <td class="col-score">{{ row.exam_score|default:"—" }}</td>
+      <td class="col-score">{{ row.total }}</td>
+      <td class="col-score">{{ row.class_avg|default:"—" }}</td>
+      <td class="col-score">{{ row.class_max|default:"—" }}</td>
+      <td class="col-score">{{ row.class_min|default:"—" }}</td>
+      <td class="col-score">{{ row.position }}</td>
+      <td class="col-score">{{ row.grade }}</td>
+      <td class="col-remark">{{ row.remark|default:"—" }}</td>
     </tr>
     {% endfor %}
     <tr class="summary-row"><td colspan="11">NUMBER OF SUBJECTS PASSED</td><td>{{ passed }} OF {{ total_subjects }}</td></tr>
@@ -137,10 +168,10 @@
       <td>
         <div class="section-title">AFFECTIVE ASSESSMENT</div>
         <table class="rating-table">
-          <tr><th style="text-align:left;">Skill</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
+          <tr><th class="col-skill" style="text-align:left;">Skill</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
           {% for sk in affective_skills %}
           <tr>
-            <td class="skill-name">{{ sk.label }}</td>
+            <td class="col-skill skill-name">{{ sk.label }}</td>
             <td>{% if sk.rating == 5 %}X{% endif %}</td>
             <td>{% if sk.rating == 4 %}X{% endif %}</td>
             <td>{% if sk.rating == 3 %}X{% endif %}</td>
@@ -153,10 +184,10 @@
 
         <div class="section-title">PSYCHOMOTOR ASSESSMENT</div>
         <table class="rating-table">
-          <tr><th style="text-align:left;">Skill</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
+          <tr><th class="col-skill" style="text-align:left;">Skill</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
           {% for sk in psychomotor_skills %}
           <tr>
-            <td class="skill-name">{{ sk.label }}</td>
+            <td class="col-skill skill-name">{{ sk.label }}</td>
             <td>{% if sk.rating == 5 %}X{% endif %}</td>
             <td>{% if sk.rating == 4 %}X{% endif %}</td>
             <td>{% if sk.rating == 3 %}X{% endif %}</td>

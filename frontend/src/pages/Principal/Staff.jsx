@@ -19,7 +19,7 @@ export default function PrincipalStaff() {
       portalId="principal"
       pageTitle="Staff"
       title="Staff"
-      subtitle="Teaching staff and their assigned role — hiring and records stay with HR."
+      subtitle="Teaching staff and their assigned role. Hiring and records stay with HR."
       loading={loading}
       error={error}
       onReload={reload}
@@ -48,7 +48,7 @@ export default function PrincipalStaff() {
                       <td className="px-lg py-4">
                         <div className="flex flex-wrap gap-xs">
                           {s.roles.length === 0 ? (
-                            <span className="font-label-sm text-label-sm text-outline">—</span>
+                            <span className="font-label-sm text-label-sm text-outline">N/A</span>
                           ) : (
                             s.roles.map((slug) => (
                               <span key={slug} className="font-label-sm text-label-sm px-sm py-0.5 rounded-full bg-surface-container text-on-surface-variant capitalize">{slug}</span>

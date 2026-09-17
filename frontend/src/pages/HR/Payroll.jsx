@@ -181,7 +181,7 @@ function RunsSection({ runs, reload }) {
       const total = Number(headers['x-payout-total-rows'] || 0);
       setPayoutResult(
         missing > 0
-          ? `Downloaded ${total} row(s) — ${missing} had no payslip for this run, so their Amount was left blank.`
+          ? `Downloaded ${total} row(s): ${missing} had no payslip for this run, so their Amount was left blank.`
           : `Downloaded ${total} row(s). Every row has an Amount.`,
       );
     } catch (err) {
@@ -307,7 +307,7 @@ function RunsSection({ runs, reload }) {
         </form>
       </Drawer>
 
-      <Drawer open={!!payslipsFor} onClose={() => setPayslipsFor(null)} title={payslipsFor ? `Payslips — ${MONTHS[payslipsFor.month - 1]} ${payslipsFor.year}` : ''}>
+      <Drawer open={!!payslipsFor} onClose={() => setPayslipsFor(null)} title={payslipsFor ? `Payslips: ${MONTHS[payslipsFor.month - 1]} ${payslipsFor.year}` : ''}>
         {payslipsFor && (
           <div className="space-y-sm">
             {payslipsFor.payslips.map((p) => (
@@ -323,13 +323,13 @@ function RunsSection({ runs, reload }) {
       <Drawer
         open={!!payoutFor}
         onClose={() => setPayoutFor(null)}
-        title={payoutFor ? `Payout Sheet — ${MONTHS[payoutFor.month - 1]} ${payoutFor.year}` : ''}
+        title={payoutFor ? `Payout Sheet: ${MONTHS[payoutFor.month - 1]} ${payoutFor.year}` : ''}
       >
         {payoutFor && (
           <div className="space-y-lg">
             <p className="font-body-md text-body-md text-on-surface-variant">
               Every active staff member's payslip for this run, plus every active non-academic (payroll-only) staff
-              record, in the bank's exact column format. Set the narration — it's applied to the first row and
+              record, in the bank's exact column format. Set the narration: it's applied to the first row and
               every row below it references the one above, so retyping it here later updates the whole column.
             </p>
             <FormField

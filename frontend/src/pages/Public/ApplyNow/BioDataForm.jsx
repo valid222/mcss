@@ -107,7 +107,7 @@ export default function ApplyBioData() {
             <h1 className="font-headline-lg text-headline-md text-primary">Applicant Bio-Data</h1>
             <p className="font-body-md text-on-surface-variant">
               {isSecondary
-                ? 'Please provide accurate information exactly as it appears on official documents — every field below is required.'
+                ? 'Please provide accurate information exactly as it appears on official documents. Every field below is required.'
                 : 'Please provide accurate personal and contact information for the student.'}
             </p>
           </div>

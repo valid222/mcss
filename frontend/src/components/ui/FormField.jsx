@@ -67,6 +67,8 @@ export default function FormField({ field, value, onChange, error }) {
         value={value ?? ''}
         onChange={(e) => onChange(field.type === 'number' ? e.target.value.replace(/[^\d.]/g, '') : e.target.value)}
         placeholder={field.placeholder}
+        min={field.min}
+        max={field.max}
       />
     );
   }

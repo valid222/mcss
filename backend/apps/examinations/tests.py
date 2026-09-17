@@ -37,18 +37,35 @@ class ExamSettingsViewTests(TestCase):
         self.client.force_authenticate(self.officer)
         res = self.client.get("/api/v1/exam/settings")
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.json()["data"]["min_bank_size"], 150)
+        body = res.json()["data"]
+        self.assertEqual(body["min_bank_size"], 150)
+        self.assertIn("Start", body["instructions"])
+        self.assertIn("recorded", body["completion_message"])
 
     def test_exam_officer_can_update_it(self):
         self.client.force_authenticate(self.officer)
-        res = self.client.post("/api/v1/exam/settings", {"min_bank_size": 80}, format="json")
+        res = self.client.post("/api/v1/exam/settings", {
+            "min_bank_size": 80, "instructions": "Turn off your phone.\nRaise your hand for help.",
+            "completion_message": "All done — thank you!",
+        }, format="json")
         self.assertEqual(res.status_code, 200, res.json())
-        self.assertEqual(res.json()["data"]["min_bank_size"], 80)
+        body = res.json()["data"]
+        self.assertEqual(body["min_bank_size"], 80)
+        self.assertEqual(body["instructions"], "Turn off your phone.\nRaise your hand for help.")
+        self.assertEqual(body["completion_message"], "All done — thank you!")
         self.assertEqual(services.get_min_bank_size(), 80)
+        self.assertEqual(services.get_exam_instructions(), "Turn off your phone.\nRaise your hand for help.")
+        self.assertEqual(services.get_exam_completion_message(), "All done — thank you!")
 
         setting = SystemSetting.objects.get(key="exam.min_bank_size")
         self.assertEqual(setting.group, "exam")
         self.assertEqual(setting.value, 80)
+
+    def test_updating_min_bank_size_alone_leaves_instructions_unchanged(self):
+        self.client.force_authenticate(self.officer)
+        self.client.post("/api/v1/exam/settings", {"min_bank_size": 80, "instructions": "Custom rules."}, format="json")
+        res = self.client.post("/api/v1/exam/settings", {"min_bank_size": 90}, format="json")
+        self.assertEqual(res.json()["data"]["instructions"], "Custom rules.")
 
     def test_a_staff_member_without_exam_config_edit_is_forbidden(self):
         self.client.force_authenticate(self.outsider)
@@ -64,6 +81,80 @@ class ExamSettingsViewTests(TestCase):
         self.client.force_authenticate(self.officer)
         res = self.client.post("/api/v1/exam/settings", {"min_bank_size": 0}, format="json")
         self.assertEqual(res.status_code, 400)
+
+
+class ExamAccessLoginBiodataTests(TestCase):
+    """ExamAccessLoginView used to hand back only access_token/student_name/
+    exam — the student exam screen had no way to show a biodata header
+    (name, Student ID, registration number, class/arm, gender, photo,
+    school logo) or the configurable instructions/completion text. Both are
+    now part of this one login response."""
+
+    def setUp(self):
+        from apps.academics.models import Student
+        from apps.academics.models import Exam as AcademicExam
+        from apps.academics.models import Subject as AcademicSubject
+        from apps.configuration.models import AcademicSession, ClassArm, SchoolClass, SchoolProfile, Term
+
+        session = AcademicSession.objects.create(
+            name="2026/2027", start_date=date(2026, 9, 1), end_date=date(2027, 7, 31), is_current=True,
+        )
+        term = Term.objects.create(session=session, name="First", start_date=date(2026, 9, 1), end_date=date(2026, 12, 15))
+        school_class = SchoolClass.objects.create(name="SS-2", level_order=2)
+        self.arm = ClassArm.objects.create(school_class=school_class, name="B")
+        subject = AcademicSubject.objects.create(name="Biology", code="BIO")
+        academic_exam = AcademicExam.objects.create(
+            name="First Term Exam", exam_type=AcademicExam.ExamType.TEST, session=session,
+            term=term, start_date=date(2026, 10, 1),
+        )
+        bank = QuestionBank.objects.create(subject=subject, school_class=school_class, term=term, is_approved=True)
+        self.exam = Exam.objects.create(
+            title="Biology CBE", academic_exam=academic_exam, subject=subject, school_class=school_class,
+            class_arm=self.arm, bank=bank, status=Exam.Status.ACTIVE, access_code="ABC123",
+        )
+        SchoolProfile.objects.create(name="Mount Carmel Secondary School", logo="/mcss-logo.png")
+
+        student_user = User.objects.create(
+            full_name="Jane Student", identifier="STU777", user_type="student", is_active=True,
+        )
+        self.student = Student.objects.create(
+            user=student_user, class_arm=self.arm, registration_number="REG-0099", gender=Student.Gender.FEMALE,
+        )
+        self.client = APIClient()
+
+    def _login(self):
+        import requests as requests_lib
+        from unittest.mock import patch
+
+        with patch("common.pdf.requests.get", side_effect=requests_lib.ConnectionError("no network in tests")):
+            return self.client.post("/api/v1/exam/access/login", {
+                "student_id": "STU777", "exam_id": str(self.exam.id), "access_code": "ABC123",
+            }, format="json")
+
+    def test_login_returns_student_biodata(self):
+        res = self._login()
+        self.assertEqual(res.status_code, 200, res.json())
+        biodata = res.json()["data"]["biodata"]
+        self.assertEqual(biodata["full_name"], "Jane Student")
+        self.assertEqual(biodata["student_id"], "STU777")
+        self.assertEqual(biodata["registration_number"], "REG-0099")
+        self.assertEqual(biodata["class_name"], "SS-2")
+        self.assertEqual(biodata["arm_name"], "B")
+        self.assertEqual(biodata["gender"], "Female")
+        self.assertEqual(biodata["school_name"], "Mount Carmel Secondary School")
+        self.assertTrue(biodata["logo_url"])  # falls back to the plain absolute URL when the fetch is mocked out
+        self.assertTrue(biodata["photo_url"])  # default placeholder when the student has no avatar
+
+    def test_login_returns_instructions_and_completion_message(self):
+        res = self._login()
+        data = res.json()["data"]
+        self.assertIn("Start", data["instructions"])
+        self.assertIn("recorded", data["completion_message"])
+
+    def test_login_reflects_a_custom_completion_message(self):
+        SystemSetting.objects.create(key="exam.completion_message", group="exam", value="Well done, see you outside!")
+        res = self._login()
+        self.assertEqual(res.json()["data"]["completion_message"], "Well done, see you outside!")
 
 
 class ActiveStudentRestrictionTests(TestCase):

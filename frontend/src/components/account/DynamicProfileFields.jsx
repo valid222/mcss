@@ -4,6 +4,8 @@ import Button from '../ui/Button.jsx';
 import Badge from '../ui/Badge.jsx';
 import FormField from '../ui/FormField.jsx';
 import { api, ApiError } from '../../lib/api.js';
+import { getBanks } from '../../lib/banks.js';
+import { STAFF_HIDDEN_BANK_KEYS, overrideDynamicFields } from '../../lib/dynamicFieldOverrides.js';
 
 /** "Complete Profile Setup" — whatever extra fields the Super Admin has
  * defined for this user's own account type (staff, parent, or student),
@@ -24,6 +26,7 @@ export default function DynamicProfileFields() {
   const [locked, setLocked] = useState(false);
   const [fields, setFields] = useState([]);
   const [values, setValues] = useState({});
+  const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -44,6 +47,17 @@ export default function DynamicProfileFields() {
   };
 
   useEffect(load, []);
+  useEffect(() => {
+    getBanks().then(setBanks);
+  }, []);
+
+  // Bank-related keys get a smarter control (bank/account-type dropdowns)
+  // than their own stored field_type, and the HR-operational ones (payment
+  // reference, beneficiary code, cashcard flag) are hidden entirely here —
+  // this is self-service, the same treatment as Staff Registration. See
+  // lib/dynamicFieldOverrides.js.
+  const visibleFields = overrideDynamicFields(fields, values, { banks })
+    .filter((f) => !STAFF_HIDDEN_BANK_KEYS.includes(f.key));
 
   const handleSave = async () => {
     setSaving(true);
@@ -64,13 +78,15 @@ export default function DynamicProfileFields() {
 
   // Nothing to show for account types the Super Admin hasn't configured any
   // extra fields for yet (or applicants, who have no self-service profile).
-  if (!loading && (entity === null || fields.length === 0)) return null;
+  if (!loading && (entity === null || visibleFields.length === 0)) return null;
 
   // Purely informational — a completeness READOUT, not a lock state of its
   // own. Whether the user can actually edit is governed entirely by
   // `locked` (the Super Admin's single global switch); this just tells them
-  // (and nudges them) whether anything required is still missing.
-  const incompleteCount = fields.filter((f) => f.required && !values[f.field_id]).length;
+  // (and nudges them) whether anything required is still missing. Based on
+  // visibleFields, not the raw list — a field this screen hides can never
+  // count against the user, since they have no way to fill it in here.
+  const incompleteCount = visibleFields.filter((f) => f.required && !values[f.field_id]).length;
 
   return (
     <Card padding="lg">
@@ -97,25 +113,21 @@ export default function DynamicProfileFields() {
               Editing is currently closed. Contact the school administrator if something here needs correcting.
             </p>
           )}
-          {fields.map((f, i) => (
+          {visibleFields.map((f, i) => (
             <div key={f.field_id}>
-              {f.group_label && f.group_label !== fields[i - 1]?.group_label && (
-                <h4 className="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase tracking-wide mt-md mb-xs first:mt-0">
+              {f.group_label && f.group_label !== visibleFields[i - 1]?.group_label && (
+                <h4 className="font-label-md text-label-md font-extrabold text-primary uppercase tracking-wide mt-md mb-xs first:mt-0">
                   {f.group_label}
                 </h4>
               )}
               <FormField
-                field={{
-                  key: f.field_id, label: f.label, type: f.field_type, required: f.required,
-                  placeholder: f.placeholder,
-                  options: (f.options || []).map((o) => ({ value: o, label: o })),
-                }}
+                field={{ ...f, key: f.field_id }}
                 value={values[f.field_id] ?? ''}
                 onChange={(v) => setValues((prev) => ({ ...prev, [f.field_id]: v }))}
               />
               {f.is_masked && (
                 <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">
-                  Saved — hidden for privacy. Only the Super Admin can view it in full. Type a new value to replace it.
+                  Saved, hidden for privacy. Only the Super Admin can view it in full. Type a new value to replace it.
                 </p>
               )}
             </div>

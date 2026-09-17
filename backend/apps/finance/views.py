@@ -501,11 +501,14 @@ class PaymentReceiptPDFView(APIView):
         except UnicodeEncodeError:
             currency_symbol = (settings_by_key.get("general.currency") or "") + " "
 
-        from common.pdf import absolute_media_url, soft_break
+        from common.pdf import soft_break, student_header
+
+        photo_url, logo_url = student_header(request, avatar=student.user.avatar, logo=profile.logo if profile else "")
 
         html = render_to_string("finance/receipt.html", {
             "show_branding": bool(settings_by_key.get("appearance.invoice_branding_enabled", True)),
-            "logo_url": absolute_media_url(request, profile.logo) if profile else "",
+            "logo_url": logo_url,
+            "photo_url": photo_url,
             "school_name": profile.name if profile else "School",
             "school_address": profile.address if profile else "",
             "school_contact": " · ".join(contact_parts),
@@ -897,6 +900,18 @@ class FeeReminderView(APIView):
             return failure(message="No outstanding balance to send a reminder for.", status=400)
         log(actor=request.user, action="finance.fee_reminders_sent", changes={"count": sent}, request=request)
         return success(message=f"Reminder sent to {sent} guardian/student(s).", data={"count": sent})
+
+
+class BanksListView(APIView):
+    """Nigerian bank list for the "pick your bank" dropdown used wherever
+    staff enter bank details (Staff Registration, self-service profile,
+    admin staff editor, Non-Academic Staff Pay) — public, same trust level
+    as Paystack's own bank list, since Staff Registration is unauthenticated."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return success(data=paystack.list_banks())
 
 
 # ---------------------------------------------------------------- Payroll

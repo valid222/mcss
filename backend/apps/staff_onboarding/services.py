@@ -99,11 +99,34 @@ def _apply_teacher_assignments(application, teacher_user):
 
 def _provision_non_academic_staff(application, reviewer):
     from apps.finance.models import NonAcademicStaffPayout
+    from apps.finance.services import BANK_CUSTOM_FIELD_KEYS
+
+    pending = list(application.field_values.select_related("field").all())
+    submitted_by_key = {p.field.key: p.value for p in pending}
+    # NonAcademicStaffPayout isn't User-backed, so it has no CustomFieldValue
+    # row of its own to fall back on — these 6 keys are real columns on the
+    # model itself (see finance.models.NonAcademicStaffPayout), and the
+    # payout sheet export reads them from there directly. Copying them here
+    # is what makes the bank details the applicant entered on the
+    # Registration form actually reach the exported paysheet.
+    bank_kwargs = {k: v for k, v in submitted_by_key.items() if k in BANK_CUSTOM_FIELD_KEYS and v not in (None, "")}
+    if "is_cashcard" in bank_kwargs:
+        bank_kwargs["is_cashcard"] = bool(bank_kwargs["is_cashcard"])
 
     payout = NonAcademicStaffPayout.objects.create(
         full_name=application.full_name, title=application.non_academic_role_title,
-        email=application.email, created_by=reviewer,
+        email=application.email, created_by=reviewer, **bank_kwargs,
     )
+
+    # Everything else the applicant filled in (Biodata: address, LGA, state,
+    # NIN, ...) has nowhere to live as a real column on this model — it's
+    # kept the same way a regular staff member's answers are: real
+    # CustomFieldValue rows, just keyed by this payout's id instead of a
+    # User's. Whatever HR/Super Admin views this record's custom fields
+    # against entity="staff", entity_id=payout.id sees them, same as staff.
+    from apps.custom_fields.services import promote_pending_values
+
+    promote_pending_values(payout.id, pending)
     return payout
 
 

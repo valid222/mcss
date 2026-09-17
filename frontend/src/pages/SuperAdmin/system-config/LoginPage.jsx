@@ -102,14 +102,14 @@ export default function SuperAdminLoginPageSettings() {
             <h2 className="font-headline-md text-headline-md text-primary mb-xs">Desktop Slider Images</h2>
             <p className="font-body-sm text-body-sm text-on-surface-variant mb-md">
               Shown on the login page's desktop panel, replacing the plain background. Works with any number of
-              images — none shows the plain background as before, one shows statically, more than one rotates
+              images: none shows the plain background as before, one shows statically, more than one rotates
               using the transition below.
             </p>
 
             {uploadError && <p className="font-label-md text-label-md text-error bg-error-container/20 border border-error/20 rounded-lg px-md py-sm mb-md">{uploadError}</p>}
 
             {images.length === 0 ? (
-              <EmptyState icon="image" text="No images uploaded yet — the login page uses its default background." />
+              <EmptyState icon="image" text="No images uploaded yet. The login page uses its default background." />
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-md mb-md">
                 {images.map((img, idx) => (

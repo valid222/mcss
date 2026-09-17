@@ -6,9 +6,9 @@ const SEVERITY_TONE = { minor: 'secondary', moderate: 'warning', severe: 'error'
 
 const COLUMNS = [
   { key: 'student_name', label: 'Student' },
-  { key: 'class_arm_label', label: 'Class', render: (item) => item.class_arm_label || '—' },
+  { key: 'class_arm_label', label: 'Class', render: (item) => item.class_arm_label || 'N/A' },
   { key: 'incident_date', label: 'Date' },
-  { key: 'category', label: 'Category', render: (item) => item.category || '—' },
+  { key: 'category', label: 'Category', render: (item) => item.category || 'N/A' },
   { key: 'severity', label: 'Severity', render: (item) => <Badge tone={SEVERITY_TONE[item.severity] || 'secondary'}>{item.severity}</Badge> },
 ];
 

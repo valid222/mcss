@@ -73,7 +73,7 @@ function SubjectAssignmentPanel({ arm, teachers, subjects, reload }) {
         ) : (
           arm.subject_assignments.map((a) => (
             <span key={a.id} className="inline-flex items-center gap-1 font-label-sm text-label-sm px-sm py-0.5 rounded-full bg-surface-container text-on-surface-variant">
-              {a.subject_name}{a.teacher_name ? ` — ${a.teacher_name}` : ''}
+              {a.subject_name}{a.teacher_name ? `: ${a.teacher_name}` : ''}
               <button type="button" onClick={() => handleRemove(a.id)} className="hover:text-error">
                 <span className="material-symbols-outlined text-[14px]">close</span>
               </button>

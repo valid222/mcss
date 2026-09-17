@@ -5,14 +5,14 @@ const COLUMNS = [
   { key: 'student_name', label: 'Student' },
   { key: 'invoice_description', label: 'Invoice' },
   { key: 'amount', label: 'Amount' },
-  { key: 'reason', label: 'Reason', render: (item) => item.reason || '—' },
-  { key: 'applied_by_name', label: 'Applied By', render: (item) => item.applied_by_name || '—' },
+  { key: 'reason', label: 'Reason', render: (item) => item.reason || 'N/A' },
+  { key: 'applied_by_name', label: 'Applied By', render: (item) => item.applied_by_name || 'N/A' },
 ];
 
 function buildFields(extra) {
   const invoiceOptions = (extra.invoices || [])
     .filter((inv) => inv.status !== 'paid' && inv.status !== 'waived')
-    .map((inv) => ({ value: inv.id, label: `${inv.student_name} — ${inv.description} (balance ${inv.balance})` }));
+    .map((inv) => ({ value: inv.id, label: `${inv.student_name} · ${inv.description} (balance ${inv.balance})` }));
   return [
     { key: 'invoice', label: 'Invoice', type: 'select', required: true, options: invoiceOptions },
     { key: 'amount', label: 'Discount Amount', type: 'number', required: true },

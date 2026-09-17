@@ -57,13 +57,13 @@ export default function BursaryCommunication() {
               <FormField
                 field={{
                   key: 'student', label: 'Recipient (leave blank to remind every debtor)', type: 'select',
-                  options: debtors.map((d) => ({ value: d.student, label: `${d.student_name} — balance ${Number(d.balance).toLocaleString()}` })),
+                  options: debtors.map((d) => ({ value: d.student, label: `${d.student_name} (balance ${Number(d.balance).toLocaleString()})` })),
                 }}
                 value={studentId}
                 onChange={setStudentId}
               />
               <FormField
-                field={{ key: 'message', label: 'Message (optional — a default reminder is sent if left blank)', type: 'textarea', rows: 4 }}
+                field={{ key: 'message', label: 'Message (optional: a default reminder is sent if left blank)', type: 'textarea', rows: 4 }}
                 value={message}
                 onChange={setMessage}
               />
@@ -94,7 +94,7 @@ export default function BursaryCommunication() {
                       {debtors.map((d) => (
                         <tr key={d.student}>
                           <td className="px-lg py-3 font-body-md text-body-md text-on-surface">{d.student_name}</td>
-                          <td className="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant">{d.class_arm_label || '—'}</td>
+                          <td className="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant">{d.class_arm_label || 'N/A'}</td>
                           <td className="px-lg py-3 font-body-md text-body-md font-semibold text-error">{Number(d.balance).toLocaleString()}</td>
                         </tr>
                       ))}

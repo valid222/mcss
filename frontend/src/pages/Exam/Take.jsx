@@ -29,6 +29,15 @@ function sendExitBeacon(attemptId) {
   }
 }
 
+// One rule per line, from the Exam Officer's configurable instructions —
+// see apps.examinations.services.get_exam_instructions.
+function instructionLines(text) {
+  return (text || '').split('\n').map((line) => line.trim()).filter(Boolean);
+}
+
+const CRITICAL_MS = 30 * 1000;
+const WARNING_MS = 5 * 60 * 1000;
+
 export default function ExamTake() {
   const { examId } = useParams();
   const navigate = useNavigate();
@@ -47,6 +56,54 @@ export default function ExamTake() {
   const statusRef = useRef('warning');
   useEffect(() => { statusRef.current = phase; }, [phase]);
 
+  // Countdown beep — a short tone generated on the fly (Web Audio API, no
+  // audio file asset needed) once the clock reaches the last 30 seconds,
+  // repeating every second until the exam ends. audioCtxRef/beepIntervalRef
+  // guarantee exactly one AudioContext and one interval ever exist at a
+  // time, regardless of how many times this effect re-runs.
+  const audioCtxRef = useRef(null);
+  const beepIntervalRef = useRef(null);
+
+  const playBeep = useCallback(() => {
+    try {
+      if (!audioCtxRef.current) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        audioCtxRef.current = new Ctx();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 880;
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.3);
+    } catch {
+      // Audio unavailable/blocked in this browser — the visual countdown
+      // warning alone still gets the point across; never block the exam.
+    }
+  }, []);
+
+  const stopBeeping = useCallback(() => {
+    if (beepIntervalRef.current) {
+      clearInterval(beepIntervalRef.current);
+      beepIntervalRef.current = null;
+    }
+  }, []);
+
+  // Cleanup on unmount (submit, exit, or navigating away mid-exam) — never
+  // leave a beep interval or an open AudioContext running in the background.
+  useEffect(() => () => {
+    stopBeeping();
+    audioCtxRef.current?.close?.();
+  }, [stopBeeping]);
+
   useEffect(() => {
     if (!getExamToken()) {
       navigate('/exam-access', { replace: true });
@@ -64,6 +121,18 @@ export default function ExamTake() {
 
   const deadlineMs = attempt ? new Date(attempt.deadline).getTime() : null;
   const remainingMs = deadlineMs ? deadlineMs - now : null;
+  const isCritical = phase === 'exam' && remainingMs !== null && remainingMs > 0 && remainingMs <= CRITICAL_MS;
+
+  useEffect(() => {
+    if (!isCritical) {
+      stopBeeping();
+      return undefined;
+    }
+    if (beepIntervalRef.current) return undefined; // already beeping — never a second interval
+    playBeep();
+    beepIntervalRef.current = setInterval(playBeep, 1000);
+    return stopBeeping;
+  }, [isCritical, playBeep, stopBeeping]);
 
   const handleSubmit = useCallback(async (attemptId) => {
     if (statusRef.current !== 'exam') return;
@@ -146,7 +215,7 @@ export default function ExamTake() {
   const answeredCount = Object.keys(answers).length;
   const currentQuestion = questions[current];
 
-  const lowTime = remainingMs !== null && remainingMs <= 5 * 60 * 1000;
+  const lowTime = remainingMs !== null && remainingMs <= WARNING_MS;
 
   if (phase === 'done') {
     return (
@@ -155,7 +224,7 @@ export default function ExamTake() {
           <span className="material-symbols-outlined text-secondary text-5xl">check_circle</span>
           <h1 className="font-headline-lg text-headline-md text-on-surface">Exam Submitted</h1>
           <p className="font-body-md text-on-surface-variant">
-            Your answers have been recorded. You may now close this window and return your device to the invigilator.
+            {meta?.completionMessage || 'Your answers have been recorded. You may now close this window and return your device to the invigilator.'}
           </p>
           <button
             type="button"
@@ -189,22 +258,58 @@ export default function ExamTake() {
   }
 
   if (phase === 'warning' || phase === 'starting') {
+    const biodata = meta?.biodata;
+    const biodataRows = biodata
+      ? [
+          ['Name', biodata.full_name],
+          ['Student ID', biodata.student_id],
+          ['Reg. No.', biodata.registration_number],
+          ['Class', [biodata.class_name, biodata.arm_name].filter(Boolean).join(' ')],
+          ['Gender', biodata.gender],
+          ['Subject', meta.subjectName],
+        ].filter(([, value]) => value)
+      : [];
+    const rules = instructionLines(meta?.instructions);
+
     return (
       <main className="flex min-h-screen w-full items-center justify-center bg-surface-container-lowest p-lg">
-        <div className="max-w-lg w-full bg-surface-container-lowest border border-outline/10 rounded-xl shadow-sm p-xl flex flex-col gap-lg">
+        <div className="max-w-xl w-full bg-surface-container-lowest border border-outline/10 rounded-xl shadow-sm p-xl flex flex-col gap-lg">
           <div>
             <h1 className="font-headline-lg text-headline-md text-on-surface">{meta?.examTitle || 'Your Exam'}</h1>
             {meta?.studentName && <p className="font-body-md text-on-surface-variant mt-xs">Signed in as {meta.studentName}</p>}
           </div>
 
+          {biodataRows.length > 0 && (
+            <div className="flex items-center gap-md p-md rounded-lg border border-outline/10 bg-surface-container-low">
+              {biodata.logo_url && (
+                <img src={biodata.logo_url} alt="" className="w-14 h-14 object-contain shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                {biodata.school_name && (
+                  <p className="font-label-md text-label-md font-bold text-primary truncate mb-xs">{biodata.school_name}</p>
+                )}
+                <div className="grid grid-cols-2 gap-x-md gap-y-0.5">
+                  {biodataRows.map(([label, value]) => (
+                    <p key={label} className="font-label-sm text-label-sm text-on-surface-variant truncate">
+                      {label}: <span className="text-on-surface font-body-sm">{value}</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+              {biodata.photo_url && (
+                <img src={biodata.photo_url} alt="" className="w-14 h-16 object-cover rounded border border-outline/20 shrink-0" />
+              )}
+            </div>
+          )}
+
           <div className="bg-error-container/10 border border-error/20 rounded-lg p-lg space-y-sm">
             <h2 className="font-label-md text-label-md text-error uppercase tracking-wide">Before You Start</h2>
             <ul className="list-disc list-inside font-body-md text-body-md text-on-surface space-y-xs">
-              <li>You have {meta?.durationMinutes ? `${meta.durationMinutes} minutes` : 'a fixed time'} once you press Start — the clock does not pause.</li>
-              <li>Your answers are saved automatically as you pick them.</li>
-              <li>Switching to another tab, app, or window submits your exam immediately with a penalty — there is no warning once you start.</li>
-              <li>You get one attempt. Only your invigilator can grant a reset for a genuine technical failure.</li>
-              <li>Submit manually with the Submit button once you've answered everything.</li>
+              {rules.length > 0 ? (
+                rules.map((rule, i) => <li key={i}>{rule}</li>)
+              ) : (
+                <li>You have {meta?.durationMinutes ? `${meta.durationMinutes} minutes` : 'a fixed time'} once you press Start. The clock does not pause.</li>
+              )}
             </ul>
           </div>
 
@@ -236,28 +341,34 @@ export default function ExamTake() {
   // phase === 'exam'
   return (
     <main className="min-h-screen w-full bg-surface-container-lowest flex flex-col">
-      <header className={`sticky top-0 z-10 flex items-center justify-between gap-md px-lg py-md border-b ${lowTime ? 'bg-error-container/20 border-error/30' : 'bg-surface-container-lowest border-outline/10'}`}>
+      <header className={`sticky top-0 z-10 flex items-center justify-between gap-md px-lg py-md border-b transition-colors ${lowTime ? 'bg-error-container/20 border-error/30' : 'bg-surface-container-lowest border-outline/10'}`}>
         <div>
           <h1 className="font-headline-md text-headline-sm text-on-surface">{meta?.examTitle || 'Exam'}</h1>
           <p className="font-label-sm text-label-sm text-on-surface-variant">{answeredCount} / {questions.length} answered</p>
         </div>
-        <div className={`font-headline-md text-headline-sm tabular-nums ${lowTime ? 'text-error' : 'text-on-surface'}`}>
+        <div className={`flex items-center gap-xs font-headline-md text-headline-sm tabular-nums ${lowTime ? 'text-error' : 'text-on-surface'} ${isCritical ? 'animate-pulse' : ''}`}>
+          {isCritical && <span className="material-symbols-outlined text-headline-sm">warning</span>}
           {remainingMs !== null ? formatClock(remainingMs) : '--:--'}
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col lg:flex-row gap-lg p-lg max-w-4xl w-full mx-auto">
-        <div className="flex-1 bg-surface-container-lowest border border-outline/10 rounded-xl shadow-sm p-xl flex flex-col gap-lg">
+      <div className="flex-1 flex flex-col lg:flex-row gap-lg p-lg max-w-6xl w-full mx-auto">
+        <div className="flex-1 bg-surface-container-lowest border border-outline/10 rounded-xl shadow-sm p-xl flex flex-col gap-xl">
           {currentQuestion && (
             <div>
-              <p className="font-label-sm text-label-sm text-on-surface-variant mb-sm">Question {current + 1} of {questions.length}</p>
-              <p className="font-body-lg text-body-lg text-on-surface">{currentQuestion.text}</p>
-              <div className="mt-lg space-y-sm">
+              <div className="flex items-center gap-sm mb-md">
+                <span className="flex items-center justify-center w-9 h-9 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shrink-0">
+                  {current + 1}
+                </span>
+                <p className="font-label-md text-label-md text-on-surface-variant">Question {current + 1} of {questions.length}</p>
+              </div>
+              <p className="font-body-lg text-body-lg font-semibold text-on-surface leading-relaxed">{currentQuestion.text}</p>
+              <div className="mt-lg space-y-md">
                 {['A', 'B', 'C', 'D'].map((letter) => (
                   <label
                     key={letter}
-                    className={`flex items-center gap-md p-md rounded-lg border cursor-pointer transition-colors ${
-                      answers[currentQuestion.id] === letter ? 'border-primary bg-primary-container/20' : 'border-outline/20 hover:bg-surface-container-low'
+                    className={`flex items-center gap-md p-md rounded-lg border-2 cursor-pointer transition-colors ${
+                      answers[currentQuestion.id] === letter ? 'border-primary bg-primary-container/20' : 'border-outline/20 hover:border-primary/40 hover:bg-surface-container-low'
                     }`}
                   >
                     <input
@@ -265,9 +376,9 @@ export default function ExamTake() {
                       name={`q-${currentQuestion.id}`}
                       checked={answers[currentQuestion.id] === letter}
                       onChange={() => handleAnswer(currentQuestion.id, letter)}
-                      className="w-5 h-5 text-primary"
+                      className="w-5 h-5 text-primary shrink-0"
                     />
-                    <span className="font-body-md text-body-md text-on-surface">{letter}) {currentQuestion.options[letter]}</span>
+                    <span className="font-body-md text-body-md text-on-surface"><span className="font-bold">{letter})</span> {currentQuestion.options[letter]}</span>
                   </label>
                 ))}
               </div>

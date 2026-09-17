@@ -78,7 +78,7 @@ export default function PrincipalAcademics() {
                         <div className="space-y-sm">
                           {entries.slice(0, 8).map((t) => (
                             <div key={t.id} className="text-body-sm">
-                              <p className="font-body-sm text-body-sm text-on-surface">{t.subject_name} — {t.class_arm_label}</p>
+                              <p className="font-body-sm text-body-sm text-on-surface">{t.subject_name} · {t.class_arm_label}</p>
                               <p className="font-label-sm text-label-sm text-on-surface-variant">{t.start_time.slice(0, 5)}–{t.end_time.slice(0, 5)} · {t.teacher_name || 'Unassigned'}</p>
                             </div>
                           ))}

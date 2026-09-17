@@ -79,9 +79,9 @@ export default function TeacherResults() {
           <div>
             <div className="flex items-center gap-md flex-wrap mb-md">
               {submission?.status === 'rejected' ? (
-                <Badge tone="error">Rejected — fix and resubmit in Marks Entry</Badge>
+                <Badge tone="error">Rejected: fix and resubmit in Marks Entry</Badge>
               ) : submission ? (
-                <Badge tone="tertiary">Submitted for approval — {new Date(submission.submitted_at).toLocaleDateString()}</Badge>
+                <Badge tone="tertiary">Submitted for approval, {new Date(submission.submitted_at).toLocaleDateString()}</Badge>
               ) : (
                 <Badge tone="secondary">Not yet submitted</Badge>
               )}
@@ -120,12 +120,12 @@ export default function TeacherResults() {
         )}
       </div>
 
-      <Drawer open={!!marksheetStudent} onClose={() => setMarksheetStudent(null)} title={marksheetStudent ? `Marksheet — ${marksheetStudent}` : ''}>
+      <Drawer open={!!marksheetStudent} onClose={() => setMarksheetStudent(null)} title={marksheetStudent ? `Marksheet: ${marksheetStudent}` : ''}>
         {!marksheet ? (
           <p className="font-body-md text-body-md text-on-surface-variant">Loading…</p>
         ) : (
           <div className="space-y-md">
-            <p className="font-label-sm text-label-sm text-on-surface-variant">{marksheet.exam.name} · {marksheet.student.class_arm || '—'}</p>
+            <p className="font-label-sm text-label-sm text-on-surface-variant">{marksheet.exam.name} · {marksheet.student.class_arm || 'N/A'}</p>
             {marksheet.subjects.length === 0 ? (
               <EmptyState icon="description" text="No scores entered yet." />
             ) : (
@@ -142,7 +142,7 @@ export default function TeacherResults() {
                     <tr key={row.subject}>
                       <td className="py-2 font-body-md text-body-md text-on-surface">{row.subject}</td>
                       <td className="py-2 font-body-md text-body-md text-on-surface">{row.score}/{row.max_score} ({row.percentage}%)</td>
-                      <td className="py-2 font-body-md text-body-md text-on-surface">{row.grade_info ? `${row.grade_info.grade} — ${row.grade_info.remark}` : '—'}</td>
+                      <td className="py-2 font-body-md text-body-md text-on-surface">{row.grade_info ? `${row.grade_info.grade}: ${row.grade_info.remark}` : 'N/A'}</td>
                     </tr>
                   ))}
                 </tbody>

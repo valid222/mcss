@@ -15,7 +15,7 @@ export default function PrincipalPerformance() {
       portalId="principal"
       pageTitle="Academic Performance"
       title="Academic Performance"
-      subtitle={report?.session ? `Reports and analytics — ${report.session}.` : 'Reports and analytics.'}
+      subtitle={report?.session ? `Reports and analytics: ${report.session}.` : 'Reports and analytics.'}
       loading={loading}
       error={error}
       onReload={reload}
@@ -25,8 +25,8 @@ export default function PrincipalPerformance() {
         <div className="space-y-lg">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-md">
             <StatCard icon="school" label="Total Students" value={report.total_students} />
-            <StatCard icon="event_available" label="Attendance Rate" value={report.attendance_rate !== null ? `${report.attendance_rate}%` : '—'} />
-            <StatCard icon="quiz" label="Most Recent Exam" value={report.recent_exam?.name || '—'} />
+            <StatCard icon="event_available" label="Attendance Rate" value={report.attendance_rate !== null ? `${report.attendance_rate}%` : 'N/A'} />
+            <StatCard icon="quiz" label="Most Recent Exam" value={report.recent_exam?.name || 'N/A'} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">

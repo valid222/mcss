@@ -78,9 +78,9 @@ export default function SuperAdminAuditLog() {
                         </td>
                         <td className="px-lg py-4 font-body-md text-body-md text-on-surface-variant">
                           {entry.target_type ? `${entry.target_type} · ` : ''}
-                          {entry.target_id || '—'}
+                          {entry.target_id || 'N/A'}
                         </td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-outline">{entry.ip_address || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-outline">{entry.ip_address || 'N/A'}</td>
                         <td className="px-lg py-4 font-label-sm text-label-sm text-outline text-right whitespace-nowrap">{formatRelativeTime(entry.created_at)}</td>
                       </tr>
                     ))}
@@ -116,8 +116,8 @@ export default function SuperAdminAuditLog() {
                             {entry.successful ? 'Success' : 'Failed'}
                           </Badge>
                         </td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant truncate max-w-75" title={entry.user_agent}>{entry.user_agent || '—'}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-outline">{entry.ip_address || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant truncate max-w-75" title={entry.user_agent}>{entry.user_agent || 'N/A'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-outline">{entry.ip_address || 'N/A'}</td>
                         <td className="px-lg py-4 font-label-sm text-label-sm text-outline text-right whitespace-nowrap">{formatRelativeTime(entry.created_at)}</td>
                       </tr>
                     ))}

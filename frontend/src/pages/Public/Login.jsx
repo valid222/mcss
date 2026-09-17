@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useBranding } from '../../context/BrandingContext.jsx';
+import { useUIPreferences } from '../../context/UIPreferences.jsx';
 import { api } from '../../lib/api.js';
 import LoginImageSlider from '../../components/public/LoginImageSlider.jsx';
 
@@ -35,6 +36,13 @@ export default function Login() {
   const location = useLocation();
   const { login, verifyOtp } = useAuth();
   const { branding } = useBranding();
+  const { isDark } = useUIPreferences();
+  // Desktop panel (left, lg+) gets the wide landscape logo (light/dark per
+  // theme); the mobile top bar (right panel, below lg) gets the small
+  // icon-style logo instead — see components/public/PublicHeader.jsx for
+  // the same convention on the public site.
+  const landscapeLogo = isDark ? branding.landscape_logo_dark || branding.landscape_logo : branding.landscape_logo;
+  const normalLogo = isDark ? branding.dark_logo || branding.logo : branding.light_logo || branding.logo;
   const [showPassword, setShowPassword] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -103,13 +111,13 @@ export default function Login() {
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-primary-container rounded-full blur-[100px] opacity-30" />
         <div className="relative z-10 flex flex-col h-full">
           <Link to="/" className="flex items-center gap-md">
-            {branding.landscape_logo ? (
-              <img src={branding.landscape_logo} alt={branding.name} className="h-16 w-auto max-w-full object-contain" />
+            {landscapeLogo ? (
+              <img src={landscapeLogo} alt={branding.name} className="h-16 w-auto max-w-full object-contain" />
             ) : (
               <>
                 <div className="w-16 h-16 flex items-center justify-center bg-surface-container-lowest rounded-lg shadow-md p-sm shrink-0">
-                  {branding.logo ? (
-                    <img src={branding.logo} alt="" className="w-full h-full object-contain" />
+                  {normalLogo ? (
+                    <img src={normalLogo} alt="" className="w-full h-full object-contain" />
                   ) : (
                     <span className="material-symbols-outlined text-primary text-3xl">school</span>
                   )}
@@ -144,10 +152,14 @@ export default function Login() {
       <section className="flex-1 flex flex-col overflow-y-auto">
         <div className="lg:hidden p-lg flex items-center justify-between border-b border-outline/10">
           <Link to="/" className="flex items-center gap-sm">
-            <div className="w-8 h-8 bg-primary rounded p-1 flex items-center justify-center">
-              <span className="material-symbols-outlined text-on-primary text-lg">school</span>
+            <div className="w-8 h-8 bg-primary rounded p-1 flex items-center justify-center overflow-hidden shrink-0">
+              {normalLogo ? (
+                <img src={normalLogo} alt="" className="w-full h-full object-contain" />
+              ) : (
+                <span className="material-symbols-outlined text-on-primary text-lg">school</span>
+              )}
             </div>
-            <span className="font-headline-md text-headline-sm text-primary">MCSS Portal</span>
+            <span className="font-headline-md text-headline-sm text-primary">{branding.short_name || branding.name || 'MCSS Portal'}</span>
           </Link>
         </div>
 
@@ -156,7 +168,7 @@ export default function Login() {
             <span className="font-label-md text-primary tracking-widest uppercase">Secure Access</span>
             <h2 className="font-headline-lg text-headline-md text-on-surface">Portal Login</h2>
             <p className="font-body-md text-on-surface-variant">
-              Sign in with your email, Student ID, or Staff ID — we'll take you straight to your portal.
+              Sign in with your email, Student ID, or Staff ID, and we'll take you straight to your portal.
             </p>
           </header>
 

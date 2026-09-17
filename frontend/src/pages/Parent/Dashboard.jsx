@@ -95,7 +95,7 @@ export default function ParentDashboard() {
                 icon="calendar_month"
                 iconTone="primary"
                 label="Attendance · This Session"
-                value={attendanceRate != null ? `${attendanceRate}%` : '—'}
+                value={attendanceRate != null ? `${attendanceRate}%` : 'N/A'}
                 helperText={attendanceRecords.length ? `${presentCount} of ${attendanceRecords.length} days present` : 'No records yet'}
               />
             </div>
@@ -108,7 +108,7 @@ export default function ParentDashboard() {
                 </div>
                 <h3 className="font-headline-md text-headline-md text-on-surface mb-xs">{report?.examName || 'No published results'}</h3>
                 <div className="text-5xl font-bold text-primary tracking-tight">
-                  {report?.average != null ? report.average : '—'}
+                  {report?.average != null ? report.average : 'N/A'}
                   {report?.average != null && <span className="text-2xl font-medium opacity-50">%</span>}
                 </div>
                 {report?.class_position && (

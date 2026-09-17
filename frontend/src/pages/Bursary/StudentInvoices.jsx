@@ -9,10 +9,10 @@ const STATUS_TONE = { unpaid: 'error', partial: 'warning', paid: 'success', waiv
 
 const COLUMNS = [
   { key: 'student_name', label: 'Student' },
-  { key: 'class_arm_label', label: 'Class', render: (item) => item.class_arm_label || '—' },
+  { key: 'class_arm_label', label: 'Class', render: (item) => item.class_arm_label || 'N/A' },
   { key: 'description', label: 'Description' },
   { key: 'amount', label: 'Amount' },
-  { key: 'total_discount', label: 'Discount', render: (item) => (Number(item.total_discount) > 0 ? item.total_discount : '—') },
+  { key: 'total_discount', label: 'Discount', render: (item) => (Number(item.total_discount) > 0 ? item.total_discount : 'N/A') },
   { key: 'balance', label: 'Balance' },
   {
     key: 'status',
@@ -24,14 +24,14 @@ const COLUMNS = [
 function buildFields(extra) {
   const studentOptions = (extra.students || []).map((s) => ({ value: s.id, label: s.full_name }));
   const sessionOptions = (extra.sessions || []).map((s) => ({ value: s.id, label: s.name }));
-  const termOptions = (extra.sessions || []).flatMap((s) => s.terms.map((t) => ({ value: t.id, label: `${t.name} — ${s.name}` })));
+  const termOptions = (extra.sessions || []).flatMap((s) => s.terms.map((t) => ({ value: t.id, label: `${t.name} · ${s.name}` })));
   const feeItemOptions = (extra.feeItems || []).map((c) => ({
-    value: c.id, label: c.amount != null ? `${c.name} — ₦${Number(c.amount).toLocaleString()}` : c.name,
+    value: c.id, label: c.amount != null ? `${c.name} (₦${Number(c.amount).toLocaleString()}` : c.name,
   }));
   return [
     { key: 'student', label: 'Student', type: 'select', required: true, options: studentOptions },
-    { key: 'fee_item', label: 'Fee Item (optional — fills in description & amount)', type: 'select', options: feeItemOptions },
-    { key: 'description', label: 'Description', type: 'text', required: true, placeholder: 'e.g. Tuition — First Term' },
+    { key: 'fee_item', label: 'Fee Item (optional: fills in description & amount)', type: 'select', options: feeItemOptions },
+    { key: 'description', label: 'Description', type: 'text', required: true, placeholder: 'e.g. Tuition, First Term' },
     { key: 'session', label: 'Session', type: 'select', required: true, options: sessionOptions },
     { key: 'term', label: 'Term (optional)', type: 'select', options: termOptions },
     { key: 'amount', label: 'Amount', type: 'number', required: true },
@@ -126,7 +126,7 @@ export default function BursaryStudentInvoices() {
       portalId="bursary"
       pageTitle="Student Invoices"
       title="Student Invoices"
-      subtitle="Individual fee tickets issued to students — pick a Fee Item to auto-fill one, or bulk-generate termly fees below."
+      subtitle="Individual fee tickets issued to students. Pick a Fee Item to auto-fill one, or bulk-generate termly fees below."
       endpoint="/finance/invoices"
       itemLabel="Invoice"
       extraEndpoints={extraEndpoints}

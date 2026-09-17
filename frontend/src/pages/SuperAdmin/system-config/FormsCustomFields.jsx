@@ -55,7 +55,7 @@ function ProfileCompleteness({ entity }) {
     <Card padding="lg" className="mt-lg">
       <h3 className="font-headline-md text-headline-sm text-on-surface mb-xs">Profile Completeness</h3>
       <p className="font-body-md text-body-md text-on-surface-variant mb-md">
-        {ENTITY_LABEL[entity]} accounts still missing a required field — including anyone whose account predates that
+        {ENTITY_LABEL[entity]} accounts still missing a required field, including anyone whose account predates that
         field being added.
       </p>
       {error && <p className="font-label-sm text-label-sm text-error">{error}</p>}
@@ -99,9 +99,9 @@ function FieldsTable({ fields, onEdit, onDelete, onToggleActive }) {
               <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{field.label}</td>
               <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{field.key}</td>
               <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{TYPE_LABELS[field.field_type] || field.field_type}</td>
-              <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant italic">{field.placeholder || '—'}</td>
-              <td className="px-lg py-4">{field.required ? <Badge tone="secondary">Required</Badge> : <span className="text-outline">—</span>}</td>
-              <td className="px-lg py-4">{field.is_sensitive ? <Badge tone="warning">Masked</Badge> : <span className="text-outline">—</span>}</td>
+              <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant italic">{field.placeholder || 'N/A'}</td>
+              <td className="px-lg py-4">{field.required ? <Badge tone="secondary">Required</Badge> : <span className="text-outline">N/A</span>}</td>
+              <td className="px-lg py-4">{field.is_sensitive ? <Badge tone="warning">Masked</Badge> : <span className="text-outline">N/A</span>}</td>
               <td className="px-lg py-4">
                 <button type="button" onClick={() => onToggleActive(field)}>
                   <Badge tone={field.is_active ? 'success' : 'secondary'}>{field.is_active ? 'Active' : 'Inactive'}</Badge>
@@ -151,7 +151,7 @@ export default function SuperAdminFormsCustomFields() {
   const groups = data?.groups || [];
 
   const groupOptions = [
-    { value: UNGROUPED, label: '— Ungrouped —' },
+    { value: UNGROUPED, label: '(Ungrouped)' },
     ...groups.map((g) => ({ value: g.id, label: g.name })),
   ];
 
@@ -318,7 +318,7 @@ export default function SuperAdminFormsCustomFields() {
     { key: 'required', label: 'Required', type: 'checkbox' },
     { key: 'order', label: 'Display Order', type: 'number' },
     {
-      key: 'is_sensitive', label: 'Sensitive (e.g. NIN, bank account) — masked once saved, only the Super Admin sees it in full',
+      key: 'is_sensitive', label: 'Sensitive (e.g. NIN, bank account): masked once saved, only the Super Admin sees it in full',
       type: 'checkbox',
     },
   ];
@@ -452,7 +452,7 @@ export default function SuperAdminFormsCustomFields() {
       <ConfirmDialog
         open={!!deleteGroupTarget}
         title="Delete Data Title?"
-        message={`This removes "${deleteGroupTarget?.name}". Fields under it are kept — they'll just move to Ungrouped.`}
+        message={`This removes "${deleteGroupTarget?.name}". Fields under it are kept; they'll just move to Ungrouped.`}
         loading={deletingGroup}
         onConfirm={handleDeleteGroup}
         onCancel={() => setDeleteGroupTarget(null)}

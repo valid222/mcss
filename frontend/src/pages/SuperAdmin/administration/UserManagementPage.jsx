@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -9,6 +9,8 @@ import DashboardPageShell from '../dashboard/DashboardPageShell.jsx';
 import { useDashboardData } from '../dashboard/useDashboardData.js';
 import { EmptyState } from '../dashboard/dashboardHelpers.jsx';
 import { api, ApiError } from '../../../lib/api.js';
+import { getBanks } from '../../../lib/banks.js';
+import { overrideDynamicFields } from '../../../lib/dynamicFieldOverrides.js';
 
 const USER_TYPE_OPTIONS = [
   { value: 'staff', label: 'Staff' },
@@ -36,9 +38,18 @@ export default function UserManagementPage({ portalId = 'superAdmin', pageTitle,
   const [actionError, setActionError] = useState('');
   const [customFields, setCustomFields] = useState([]);
   const [customFieldValues, setCustomFieldValues] = useState({});
+  const [banks, setBanks] = useState([]);
 
   const users = data?.users || [];
   const roles = data?.roles || [];
+  // Super Admin sees every field, including the HR-operational bank ones
+  // (payment reference, beneficiary code, cashcard) self-service screens
+  // hide — just rendered with the same smarter bank/state/LGA controls.
+  const visibleCustomFields = overrideDynamicFields(customFields, customFieldValues, { banks });
+
+  useEffect(() => {
+    getBanks().then(setBanks);
+  }, []);
 
   const loadCustomFields = async (userId) => {
     try {
@@ -205,7 +216,7 @@ export default function UserManagementPage({ portalId = 'superAdmin', pageTitle,
                         <td className="px-lg py-4">
                           <div className="flex flex-wrap gap-xs">
                             {user.roles.length === 0 ? (
-                              <span className="font-label-sm text-label-sm text-outline">—</span>
+                              <span className="font-label-sm text-label-sm text-outline">N/A</span>
                             ) : (
                               user.roles.map((slug) => (
                                 <span key={slug} className="font-label-sm text-label-sm px-sm py-0.5 rounded-full bg-surface-container text-on-surface-variant capitalize">
@@ -284,21 +295,17 @@ export default function UserManagementPage({ portalId = 'superAdmin', pageTitle,
               />
             </>
           )}
-          {customFields.length > 0 && (
+          {visibleCustomFields.length > 0 && (
             <div className="space-y-lg pt-md border-t border-outline/10">
-              {customFields.map((f, i) => (
+              {visibleCustomFields.map((f, i) => (
                 <div key={f.field_id}>
-                  {f.group_label && f.group_label !== customFields[i - 1]?.group_label && (
-                    <h4 className="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase tracking-wide mb-sm">
+                  {f.group_label && f.group_label !== visibleCustomFields[i - 1]?.group_label && (
+                    <h4 className="font-label-md text-label-md font-extrabold text-primary uppercase tracking-wide mb-sm">
                       {f.group_label}
                     </h4>
                   )}
                   <FormField
-                    field={{
-                      key: f.field_id, label: f.label, type: f.field_type, required: f.required,
-                      placeholder: f.placeholder,
-                      options: (f.options || []).map((o) => ({ value: o, label: o })),
-                    }}
+                    field={{ ...f, key: f.field_id }}
                     value={customFieldValues[f.field_id] ?? ''}
                     onChange={(v) => setCustomFieldValues((prev) => ({ ...prev, [f.field_id]: v }))}
                   />
@@ -347,7 +354,7 @@ export default function UserManagementPage({ portalId = 'superAdmin', pageTitle,
         <ConfirmDialog
           open
           title="Password Reset"
-          message={`Temporary password for ${resetResult.user.full_name}: ${resetResult.tempPassword} — share this with them securely; it won't be shown again.`}
+          message={`Temporary password for ${resetResult.user.full_name}: ${resetResult.tempPassword} , share this with them securely; it won't be shown again.`}
           confirmLabel="Done"
           danger={false}
           onConfirm={() => setResetResult(null)}

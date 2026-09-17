@@ -127,7 +127,7 @@ export default function SuperAdminWebsiteSettings() {
         <div className="space-y-lg">
           <Card padding="lg" className="max-w-3xl flex flex-wrap items-center justify-between gap-md">
             <p className="font-label-md text-label-md text-on-surface-variant">
-              The school's name, logo, and contact details come from School Configuration — the landing page footer reads them live from there.
+              The school's name, logo, and contact details come from School Configuration; the landing page footer reads them live from there.
             </p>
             <div className="flex gap-sm">
               <Link to="/super-admin/configuration" className="font-label-sm text-label-sm text-primary hover:underline">School Configuration →</Link>

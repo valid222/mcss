@@ -39,19 +39,24 @@ class PublicStaffApplicationSubmitSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"email": "Provide at least an email or phone number so we can reach you."})
 
         staff_type = attrs.get("staff_type")
-        if staff_type == StaffApplication.StaffType.NON_ACADEMIC:
-            if not attrs.get("non_academic_role_title"):
-                raise serializers.ValidationError({"non_academic_role_title": "Enter your role (e.g. Cleaner, Driver)."})
-        else:
-            submitted_by_field_id = {str(v["field_id"]): v.get("value") for v in attrs.get("custom_field_values") or []}
-            missing = missing_required_fields(CustomField.Entity.STAFF, submitted_by_field_id)
-            if missing:
-                raise serializers.ValidationError({"custom_field_values": f"These fields are required: {', '.join(missing)}."})
-            if staff_type == StaffApplication.StaffType.TEACHER:
-                if not attrs.get("subject_claims"):
-                    raise serializers.ValidationError({"subject_claims": "Add at least one subject and class you teach."})
-                if attrs.get("is_form_teacher") and not attrs.get("form_teacher_class_arm"):
-                    raise serializers.ValidationError({"form_teacher_class_arm": "Select which class-arm you're the form teacher of."})
+        if staff_type == StaffApplication.StaffType.NON_ACADEMIC and not attrs.get("non_academic_role_title"):
+            raise serializers.ValidationError({"non_academic_role_title": "Enter your role (e.g. Cleaner, Driver)."})
+
+        # Every staff type now shares the same Super-Admin-defined "staff"
+        # custom fields (Biodata, bank details, ...) — non-academic staff
+        # used to skip this check entirely, which is also how their
+        # submitted answers ended up silently dropped at approval time
+        # instead of ever being required or saved.
+        submitted_by_field_id = {str(v["field_id"]): v.get("value") for v in attrs.get("custom_field_values") or []}
+        missing = missing_required_fields(CustomField.Entity.STAFF, submitted_by_field_id)
+        if missing:
+            raise serializers.ValidationError({"custom_field_values": f"These fields are required: {', '.join(missing)}."})
+
+        if staff_type == StaffApplication.StaffType.TEACHER:
+            if not attrs.get("subject_claims"):
+                raise serializers.ValidationError({"subject_claims": "Add at least one subject and class you teach."})
+            if attrs.get("is_form_teacher") and not attrs.get("form_teacher_class_arm"):
+                raise serializers.ValidationError({"form_teacher_class_arm": "Select which class-arm you're the form teacher of."})
         return attrs
 
     def create(self, validated_data):

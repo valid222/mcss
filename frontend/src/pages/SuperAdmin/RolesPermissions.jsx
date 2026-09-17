@@ -107,7 +107,7 @@ export default function SuperAdminRolesPermissions() {
     <DashboardPageShell
       pageTitle="Roles & Permissions"
       title="Roles & Permissions"
-      subtitle="Every role is a named bundle of permission strings — access is gated by permission, never by role name."
+      subtitle="Every role is a named bundle of permission strings; access is gated by permission, never by role name."
       loading={loading}
       error={error}
       onReload={reload}
@@ -196,7 +196,7 @@ export default function SuperAdminRolesPermissions() {
           </Card>
 
           <p className="font-label-sm text-label-sm text-on-surface-variant italic">
-            Super Admin bypasses this registry entirely — every permission check returns true for that one account, by design.
+            Super Admin bypasses this registry entirely: every permission check returns true for that one account, by design.
           </p>
         </div>
       )}

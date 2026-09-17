@@ -23,15 +23,19 @@ const THEME_FIELDS = [
 
 const FONT_FIELDS = [
   { key: 'appearance.heading_font', label: 'Heading Font', hint: 'Page titles and section headings.' },
-  { key: 'appearance.primary_font', label: 'Primary Font', hint: 'Labels, buttons, nav, badges, table headers — the most-used typeface in the app.' },
+  { key: 'appearance.primary_font', label: 'Primary Font', hint: 'Labels, buttons, nav, badges, table headers: the most-used typeface in the app.' },
   { key: 'appearance.body_font', label: 'Body Font', hint: 'Paragraph text and form inputs.' },
 ];
-const BASE_FONT_SIZE_FIELD = { key: 'appearance.base_font_size', label: 'Base Font Size (px)', type: 'number' };
+const BASE_FONT_SIZE_FIELD = {
+  key: 'appearance.base_font_size', label: 'Base Font Size (px)', type: 'number', min: 12, max: 22,
+  hint: 'Scales all text across the app proportionally. Default is 16, kept within 12–22 so nothing clips or overflows.',
+};
 
 const LOGO_UPLOAD_FIELDS = [
-  { key: 'appearance.light_logo', label: 'Light Mode Logo', hint: 'Shown across the app when light mode is active.' },
-  { key: 'appearance.dark_logo', label: 'Dark Mode Logo', hint: 'Shown across the app when dark mode is active.' },
-  { key: 'appearance.landscape_logo', label: 'Landscape Logo', hint: 'Wide banner logo — the public site header and the login screen.' },
+  { key: 'appearance.light_logo', label: 'Light Mode Logo', hint: 'Mobile / icon-style logo shown when light mode is active.' },
+  { key: 'appearance.dark_logo', label: 'Dark Mode Logo', hint: 'Mobile / icon-style logo shown when dark mode is active.' },
+  { key: 'appearance.landscape_logo', label: 'Landscape Logo (Light)', hint: 'Wide banner logo for desktop (the public site header and the login screen) in light mode.' },
+  { key: 'appearance.landscape_logo_dark', label: 'Landscape Logo (Dark)', hint: 'Wide banner logo for desktop (the public site header and the login screen) in dark mode.' },
 ];
 
 const SCHOOL_SEAL_FIELD = { key: 'appearance.school_seal', label: 'School Seal / Stamp URL', type: 'text' };

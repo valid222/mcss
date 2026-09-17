@@ -1,6 +1,9 @@
+from unittest.mock import Mock, patch
+
+from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 
-from .pdf import absolute_media_url, soft_break
+from .pdf import absolute_media_url, soft_break, student_header
 
 
 class AbsoluteMediaUrlTests(TestCase):
@@ -60,3 +63,64 @@ class SoftBreakTests(TestCase):
         # the printed page.
         original = "MCSS-49dc3925beb64d298d755758c516f1ed-e2etest1"
         self.assertEqual(soft_break(original).replace(" ", ""), original)
+
+
+def _fake_image_response(content=b"\x89PNG-fake-bytes", content_type="image/png"):
+    resp = Mock()
+    resp.raise_for_status = Mock()
+    resp.headers = {"Content-Type": content_type}
+    resp.content = content
+    return resp
+
+
+class StudentHeaderCachingTests(TestCase):
+    """common.pdf.student_header / _cached_image_data_uri — the fix for PDF
+    generation being slow: without this, xhtml2pdf re-fetches the same
+    logo over the network on every single request. Confirms a fetch only
+    ever happens once per URL (cached after), and that a fetch failure
+    falls back to handing xhtml2pdf the plain URL — exactly what happened
+    before this caching existed — rather than dropping the image."""
+
+    def setUp(self):
+        cache.clear()
+        self.request = RequestFactory().get("/")
+
+    def test_a_successful_fetch_is_returned_as_a_data_uri(self):
+        with patch("common.pdf.requests.get", return_value=_fake_image_response()) as mock_get:
+            photo_url, logo_url = student_header(self.request, avatar="", logo="/mcss-logo.png")
+        mock_get.assert_called_once()
+        self.assertTrue(logo_url.startswith("data:image/png;base64,"))
+        # No avatar -> the shared default placeholder, also a data: URI.
+        self.assertTrue(photo_url.startswith("data:image/png;base64,"))
+
+    def test_a_second_call_for_the_same_url_does_not_fetch_again(self):
+        with patch("common.pdf.requests.get", return_value=_fake_image_response()) as mock_get:
+            student_header(self.request, avatar="", logo="/mcss-logo.png")
+            student_header(self.request, avatar="", logo="/mcss-logo.png")
+        self.assertEqual(mock_get.call_count, 1)
+
+    def test_a_failed_fetch_falls_back_to_the_plain_url_not_dropped(self):
+        import requests as requests_lib
+
+        with patch("common.pdf.requests.get", side_effect=requests_lib.ConnectionError("down")):
+            photo_url, logo_url = student_header(self.request, avatar="/media/avatars/x.jpg", logo="/mcss-logo.png")
+        self.assertEqual(logo_url, "http://testserver/mcss-logo.png")
+        self.assertEqual(photo_url, "http://testserver/media/avatars/x.jpg")
+
+    def test_a_failed_fetch_is_not_cached_so_the_next_request_retries(self):
+        import requests as requests_lib
+
+        with patch("common.pdf.requests.get", side_effect=requests_lib.ConnectionError("down")) as mock_get:
+            student_header(self.request, avatar="", logo="/mcss-logo.png")
+        self.assertEqual(mock_get.call_count, 1)
+
+        with patch("common.pdf.requests.get", return_value=_fake_image_response()) as mock_get2:
+            _photo_url, logo_url = student_header(self.request, avatar="", logo="/mcss-logo.png")
+        mock_get2.assert_called_once()  # not skipped by a cached failure
+        self.assertTrue(logo_url.startswith("data:image/png;base64,"))
+
+    def test_no_logo_configured_stays_empty(self):
+        with patch("common.pdf.requests.get") as mock_get:
+            _photo_url, logo_url = student_header(self.request, avatar="", logo="")
+        mock_get.assert_not_called()
+        self.assertEqual(logo_url, "")

@@ -49,7 +49,7 @@ export default function ExamOfficerExams() {
       setCopiedField(field);
       setTimeout(() => setCopiedField(''), 2000);
     } else {
-      setActionError('Could not copy — copy it manually instead.');
+      setActionError('Could not copy. Copy it manually instead.');
     }
   };
 
@@ -192,7 +192,7 @@ export default function ExamOfficerExams() {
             value={form.bank} onChange={(v) => setForm((p) => ({ ...p, bank: v }))}
           />
           {form.subject && form.school_class && bankOptions.length === 0 && (
-            <p className="font-label-sm text-label-sm text-error">No approved bank for this subject/class yet — approve one first.</p>
+            <p className="font-label-sm text-label-sm text-error">No approved bank for this subject/class yet. Approve one first.</p>
           )}
           <FormField field={{ key: 'questions_per_student', label: 'Questions per Student', type: 'number', required: true }} value={form.questions_per_student} onChange={(v) => setForm((p) => ({ ...p, questions_per_student: v }))} />
           <FormField field={{ key: 'duration_minutes', label: 'Duration (minutes)', type: 'number', required: true }} value={form.duration_minutes} onChange={(v) => setForm((p) => ({ ...p, duration_minutes: v }))} />

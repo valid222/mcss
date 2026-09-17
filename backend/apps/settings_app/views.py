@@ -44,6 +44,7 @@ class PublicBrandingView(APIView):
             "light_logo": appearance.get("appearance.light_logo", ""),
             "dark_logo": appearance.get("appearance.dark_logo", ""),
             "landscape_logo": appearance.get("appearance.landscape_logo", ""),
+            "landscape_logo_dark": appearance.get("appearance.landscape_logo_dark", ""),
             "heading_font": appearance.get("appearance.heading_font", ""),
             "primary_font": appearance.get("appearance.primary_font", ""),
             "body_font": appearance.get("appearance.body_font", ""),

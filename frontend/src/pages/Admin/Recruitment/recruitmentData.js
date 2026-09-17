@@ -25,7 +25,7 @@ export const columns = [
       {
         name: 'Dr. Alistair Vance',
         role: 'Head of Mathematics',
-        note: 'Panel Interview 2 — Today @ 14:30 in Boardroom A',
+        note: 'Panel Interview 2, Today @ 14:30 in Boardroom A',
         urgent: true,
       },
     ],

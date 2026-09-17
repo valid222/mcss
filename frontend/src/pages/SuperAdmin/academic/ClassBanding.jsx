@@ -160,7 +160,7 @@ function ReallocationReviewDrawer({ reallocationId, onClose, onChanged }) {
   };
 
   return (
-    <Drawer open={!!reallocationId} onClose={onClose} title={detail ? `${detail.school_class_name} — ${detail.term_name}` : 'Reallocation'}>
+    <Drawer open={!!reallocationId} onClose={onClose} title={detail ? `${detail.school_class_name}: ${detail.term_name}` : 'Reallocation'}>
       {error && <p className="font-label-md text-label-md text-error mb-md">{error}</p>}
       {!detail ? (
         <p className="font-body-md text-body-md text-on-surface-variant">Loading…</p>
@@ -189,7 +189,7 @@ function ReallocationReviewDrawer({ reallocationId, onClose, onChanged }) {
               {detail.moves.map((m) => (
                 <div key={m.id} className="flex items-center justify-between font-label-sm text-label-sm border-b border-outline/10 py-1">
                   <span>{m.student_name}</span>
-                  <span className="text-on-surface-variant">{m.from_arm_label || '—'} → {m.to_arm_label}</span>
+                  <span className="text-on-surface-variant">{m.from_arm_label || 'N/A'} → {m.to_arm_label}</span>
                 </div>
               ))}
             </div>
@@ -276,7 +276,7 @@ export default function SuperAdminClassBanding() {
                 {liveReallocations.map((r) => (
                   <Card key={r.id} padding="lg" className="flex items-center justify-between flex-wrap gap-sm">
                     <div>
-                      <p className="font-label-md text-label-md font-bold text-on-surface">{r.school_class_name} — {r.term_name} ({r.session_name})</p>
+                      <p className="font-label-md text-label-md font-bold text-on-surface">{r.school_class_name} · {r.term_name} ({r.session_name})</p>
                       <p className="font-label-sm text-label-sm text-on-surface-variant">{r.move_count} move(s), from {r.source_exam_name || 'manual compute'}</p>
                     </div>
                     <div className="flex items-center gap-sm">

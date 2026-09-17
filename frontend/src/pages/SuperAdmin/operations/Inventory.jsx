@@ -39,7 +39,7 @@ function TransactionAction({ item, reload }) {
       <button type="button" onClick={() => setOpen(true)} className="font-label-sm text-label-sm text-primary hover:underline">
         Record Transaction
       </button>
-      <Drawer open={open} onClose={() => setOpen(false)} title={`Stock Transaction — ${item.name}`}>
+      <Drawer open={open} onClose={() => setOpen(false)} title={`Stock Transaction: ${item.name}`}>
         <form onSubmit={handleSubmit} className="space-y-lg">
           {error && <p className="font-label-md text-label-md text-error">{error}</p>}
           <FormField
@@ -155,12 +155,12 @@ export default function SuperAdminInventory() {
                     {items.map((item) => (
                       <tr key={item.id} className="hover:bg-surface-container-low transition-colors">
                         <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{item.name}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{item.category || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{item.category || 'N/A'}</td>
                         <td className="px-lg py-4">
                           <span className="font-label-sm text-label-sm text-on-surface-variant">{item.quantity} {item.unit}</span>
                           {item.low_stock && <Badge tone="error" className="ml-xs">Low</Badge>}
                         </td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{item.location || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{item.location || 'N/A'}</td>
                         <td className="px-lg py-4 text-right whitespace-nowrap">
                           <TransactionAction item={item} reload={reload} />
                           <button type="button" onClick={() => openEdit(item)} className="p-2 text-outline hover:text-primary transition-colors">

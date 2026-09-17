@@ -131,7 +131,7 @@ export default function SuperAdminLibrary() {
                     {books.map((book) => (
                       <tr key={book.id} className="hover:bg-surface-container-low transition-colors">
                         <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{book.title}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{book.author || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{book.author || 'N/A'}</td>
                         <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{book.available_copies} / {book.total_copies}</td>
                         <td className="px-lg py-4 text-right whitespace-nowrap">
                           <button type="button" onClick={() => openEditBook(book)} className="p-2 text-outline hover:text-primary transition-colors">

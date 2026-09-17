@@ -74,7 +74,7 @@ function RoomCard({ room, allocations, students, reload }) {
         </button>
       )}
 
-      <Drawer open={allocateOpen} onClose={() => setAllocateOpen(false)} title={`Allocate — ${room.room_number}`}>
+      <Drawer open={allocateOpen} onClose={() => setAllocateOpen(false)} title={`Allocate: ${room.room_number}`}>
         <form onSubmit={handleAllocate} className="space-y-lg">
           {error && <p className="font-label-md text-label-md text-error">{error}</p>}
           <FormField

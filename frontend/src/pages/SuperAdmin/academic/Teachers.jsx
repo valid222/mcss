@@ -13,7 +13,7 @@ export default function SuperAdminTeachers() {
     <DashboardPageShell
       pageTitle="Teachers"
       title="Teachers"
-      subtitle="Staff teaching load for the current session — manage staff accounts in Staff Management, and subject/class-teacher assignments from the Classes page."
+      subtitle="Staff teaching load for the current session. Manage staff accounts in Staff Management, and subject/class-teacher assignments from the Classes page."
       loading={loading}
       error={error}
       onReload={reload}
@@ -38,10 +38,10 @@ export default function SuperAdminTeachers() {
                   {teachers.map((teacher) => (
                     <tr key={teacher.id} className="hover:bg-surface-container-low transition-colors">
                       <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{teacher.full_name}</td>
-                      <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{teacher.email || '—'}</td>
+                      <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{teacher.email || 'N/A'}</td>
                       <td className="px-lg py-4">
                         {teacher.subjects_taught.length === 0 ? (
-                          <span className="font-label-sm text-label-sm text-outline">—</span>
+                          <span className="font-label-sm text-label-sm text-outline">N/A</span>
                         ) : (
                           <div className="flex flex-wrap gap-xs">
                             {teacher.subjects_taught.map((s, i) => (
@@ -53,7 +53,7 @@ export default function SuperAdminTeachers() {
                         )}
                       </td>
                       <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">
-                        {teacher.class_teacher_of.length === 0 ? '—' : teacher.class_teacher_of.join(', ')}
+                        {teacher.class_teacher_of.length === 0 ? 'N/A' : teacher.class_teacher_of.join(', ')}
                       </td>
                     </tr>
                   ))}

@@ -39,7 +39,7 @@ export default function SuperAdminPayments() {
     setSuccessMessage('');
     try {
       const result = await api.post('/finance/payments', { invoice: invoiceId, amount, method, reference });
-      setSuccessMessage(`Payment recorded — receipt ${result.receipt_number}.`);
+      setSuccessMessage(`Payment recorded, receipt ${result.receipt_number}.`);
       setInvoiceId('');
       setAmount('');
       setReference('');
@@ -62,7 +62,7 @@ export default function SuperAdminPayments() {
               <FormField
                 field={{
                   key: 'invoice', label: 'Invoice', type: 'select', required: true,
-                  options: outstandingInvoices.map((inv) => ({ value: inv.id, label: `${inv.student_name} — ${inv.description} (balance ${inv.balance})` })),
+                  options: outstandingInvoices.map((inv) => ({ value: inv.id, label: `${inv.student_name} · ${inv.description} (balance ${inv.balance})` })),
                 }}
                 value={invoiceId}
                 onChange={setInvoiceId}

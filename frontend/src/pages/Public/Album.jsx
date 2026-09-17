@@ -82,7 +82,7 @@ export default function Album() {
           <span className="text-tertiary font-label-md text-xs tracking-[0.2em] font-bold uppercase mb-sm block">Moments at Mount Carmel</span>
           <h1 className="font-headline-xl text-headline-lg text-primary mb-md">School Album</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant">
-            A closer look at campus life — academics, events, and everyday moments, in pictures and video.
+            A closer look at campus life: academics, events, and everyday moments, in pictures and video.
           </p>
         </header>
 
@@ -93,7 +93,7 @@ export default function Album() {
         ) : items.length === 0 ? (
           <div className="text-center py-xl text-on-surface-variant">
             <span className="material-symbols-outlined text-5xl opacity-40 mb-md block">photo_library</span>
-            <p>No album items have been added yet — check back soon.</p>
+            <p>No album items have been added yet. Check back soon.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-md">

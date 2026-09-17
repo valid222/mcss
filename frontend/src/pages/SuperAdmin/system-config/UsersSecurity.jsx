@@ -62,7 +62,7 @@ function SelfEditLockToggle() {
       <div className="flex items-center justify-between flex-wrap gap-md">
         <div>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            While open, every role can fill in their own Edit Profile screen. Close it once everyone's done — you can
+            While open, every role can fill in their own Edit Profile screen. Close it once everyone's done. You can
             always reopen it later to let everyone edit again, and you can edit anyone's profile directly at any time
             regardless of this switch.
           </p>
@@ -125,7 +125,7 @@ export default function SuperAdminUsersSecuritySettings() {
 
           <form onSubmit={handleSubmit} className="space-y-lg">
             {saveError && <p className="font-label-md text-label-md text-error bg-error-container/20 border border-error/20 rounded-lg px-md py-sm max-w-3xl">{saveError}</p>}
-            {saved && <p className="font-label-md text-label-md text-secondary bg-secondary-container/20 border border-secondary/20 rounded-lg px-md py-sm max-w-3xl">Saved — applies immediately to new logins and password changes.</p>}
+            {saved && <p className="font-label-md text-label-md text-secondary bg-secondary-container/20 border border-secondary/20 rounded-lg px-md py-sm max-w-3xl">Saved. Applies immediately to new logins and password changes.</p>}
 
             <Card padding="lg" className="max-w-3xl">
               <h2 className="font-headline-md text-headline-md text-primary mb-md">Password Policy</h2>

@@ -12,7 +12,7 @@ export default function SuperAdminFinancialSummary() {
     <DashboardPageShell
       pageTitle="Financial Summary"
       title="Financial Summary"
-      subtitle="Fees, outstanding balances, and today's payments — live from the database."
+      subtitle="Fees, outstanding balances, and today's payments, live from the database."
       loading={loading}
       error={error}
       onReload={reload}

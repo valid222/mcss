@@ -78,7 +78,7 @@ export default function BursaryScholarships() {
     setAllocError('');
     try {
       await api.post('/finance/scholarships/allocations', allocForm);
-      setAllocMessage('Scholarship allocated — applied as a discount to the student\'s current outstanding invoices.');
+      setAllocMessage('Scholarship allocated, applied as a discount to the student\'s current outstanding invoices.');
       setAllocDrawerOpen(false);
       reload();
     } catch (err) {
@@ -98,7 +98,7 @@ export default function BursaryScholarships() {
       portalId="bursary"
       pageTitle="Scholarships"
       title="Scholarships"
-      subtitle="Award types and who's been granted one — allocating discounts every not-yet-settled invoice for that student this session."
+      subtitle="Award types and who's been granted one, allocating discounts every not-yet-settled invoice for that student this session."
       loading={loading}
       error={error}
       onReload={reload}

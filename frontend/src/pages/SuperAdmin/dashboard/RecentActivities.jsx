@@ -38,7 +38,7 @@ export default function SuperAdminRecentActivities() {
                       <p className="font-body-md text-body-md text-on-surface">
                         <span className="font-bold">{entry.actor}</span>{' '}
                         <code className="font-label-sm text-label-sm bg-surface-container px-1.5 py-0.5 rounded">{entry.action}</code>
-                        {entry.target_type && <span className="text-on-surface-variant"> — {entry.target_type}</span>}
+                        {entry.target_type && <span className="text-on-surface-variant"> · {entry.target_type}</span>}
                       </p>
                       <p className="font-label-sm text-label-sm text-outline mt-0.5">{formatRelativeTime(entry.created_at)}</p>
                     </div>

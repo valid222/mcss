@@ -80,7 +80,7 @@ export default function SuperAdminSchoolConfiguration() {
               ))}
               <ImageUploadField
                 label="Logo"
-                hint="The school's default logo — used everywhere a theme/landscape variant isn't set."
+                hint="The school's default logo, used everywhere a theme/landscape variant isn't set."
                 value={values.logo}
                 onChange={(v) => { setSaved(false); setValues((prev) => ({ ...prev, logo: v })); }}
               />

@@ -68,7 +68,7 @@ export default function HRDocuments() {
   };
 
   return (
-    <DashboardPageShell portalId="hr" pageTitle="Staff Documents" title="Staff Documents" subtitle="Document storage per employee — contracts, certificates, IDs, and more." loading={loading} error={error} onReload={reload} skeletonCount={1}>
+    <DashboardPageShell portalId="hr" pageTitle="Staff Documents" title="Staff Documents" subtitle="Document storage per employee: contracts, certificates, IDs, and more." loading={loading} error={error} onReload={reload} skeletonCount={1}>
       {data && (
         <div>
           <div className="flex justify-end mb-md">

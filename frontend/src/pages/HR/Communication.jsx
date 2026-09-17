@@ -35,7 +35,7 @@ export default function HRCommunication() {
   return (
     <AppShell portalId="hr" pageTitle="Communication" user={{ name: user?.full_name || 'HR' }}>
       <div className="space-y-lg sm:space-y-xl">
-        <PageHeader title="Communication" subtitle="Send a message to every staff member — it lands in their Notifications." />
+        <PageHeader title="Communication" subtitle="Send a message to every staff member. It lands in their Notifications." />
 
         <Card padding="lg" className="max-w-2xl">
           <form onSubmit={handleSend} className="space-y-lg">

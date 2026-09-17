@@ -12,7 +12,7 @@ export default function SuperAdminAcademicSummary() {
     <DashboardPageShell
       pageTitle="Academic Summary"
       title="Academic Summary"
-      subtitle="Attendance, exams, and results — live from the database."
+      subtitle="Attendance, exams, and results, live from the database."
       loading={loading}
       error={error}
       onReload={reload}

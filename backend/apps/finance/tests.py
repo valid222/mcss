@@ -1,7 +1,7 @@
-"""HR Payout Sheet: exact column order (Title right after Names), the
-Narration formula chain, Amount sourced from Payslip (regular staff) vs a
-plain pay figure (non-academic staff), active-only filtering, and the
-export permission gate.
+"""HR Payout Sheet: exact column order (no Title column — removed per
+spec, not just hidden), the Narration formula chain, Amount sourced from
+Payslip (regular staff) vs a plain pay figure (non-academic staff),
+active-only filtering, and the export permission gate.
 """
 
 import hashlib
@@ -28,14 +28,14 @@ User = get_user_model()
 
 class PayoutSheetTestBase(TestCase):
     def setUp(self):
-        self.title_field = CustomField.objects.create(entity=CustomField.Entity.STAFF, key="title", label="Title")
         self.acct_field = CustomField.objects.create(entity=CustomField.Entity.STAFF, key="account_number", label="Account No.")
+        self.acct_type_field = CustomField.objects.create(entity=CustomField.Entity.STAFF, key="account_type", label="Account Type")
         self.run = PayrollRun.objects.create(month=1, year=2199)  # arbitrary, unused elsewhere
 
-    def make_staff(self, name, *, active=True, title=None, account_number=None, net_pay=None):
+    def make_staff(self, name, *, active=True, account_number=None, account_type=None, net_pay=None):
         user = User.objects.create(full_name=name, email=f"{name.lower().replace(' ', '.')}@x.io", user_type="staff", is_active=active)
-        if title:
-            CustomFieldValue.objects.create(field=self.title_field, entity_id=user.id, value=title)
+        if account_type:
+            CustomFieldValue.objects.create(field=self.acct_type_field, entity_id=user.id, value=account_type)
         if account_number:
             CustomFieldValue.objects.create(field=self.acct_field, entity_id=user.id, value=account_number)
         if net_pay is not None:
@@ -52,15 +52,13 @@ class ColumnOrderTests(PayoutSheetTestBase):
         ws = wb.active
         headers = [ws.cell(row=1, column=c).value for c in range(1, len(PAYOUT_SHEET_HEADERS) + 1)]
         self.assertEqual(headers, [
-            "Payment Reference", "Beneficiary Code", "Names", "Title", "Account No.",
+            "Payment Reference", "Beneficiary Code", "Names", "Account No.",
             "Account Type", "CBN Sort code", "Is CashCard", "Narration", "Amount",
             "Email Address", "Currency Code",
         ])
 
-    def test_title_sits_right_after_names(self):
-        names_col = PAYOUT_SHEET_HEADERS.index("Names")
-        title_col = PAYOUT_SHEET_HEADERS.index("Title")
-        self.assertEqual(title_col, names_col + 1)
+    def test_title_column_does_not_exist(self):
+        self.assertNotIn("Title", PAYOUT_SHEET_HEADERS)
 
     def test_header_and_amount_styling(self):
         self.make_staff("Font Check", net_pay=Decimal("50000"))
@@ -93,16 +91,17 @@ class NarrationChainTests(PayoutSheetTestBase):
             self.assertEqual(ws.cell(row=r, column=narration_col).value, f"={narration_letter}{r - 1}")
 
     def test_chain_points_at_narration_column_not_a_hardcoded_letter(self):
-        """Regression guard: Title shifts every column after it one place to
-        the right versus the original 11-column bank template, where the
-        formula chain was literally "=H2". If this ever hardcoded "H" again
-        it would silently point at Is CashCard instead of Narration."""
+        """Regression guard: Narration sits at column H in this 11-column
+        sheet. If this ever hardcoded "H" instead of deriving it from
+        PAYOUT_SHEET_HEADERS, a future column change (e.g. re-adding a
+        removed one) would silently point the formula chain at the wrong
+        cell instead of Narration."""
         self.make_staff("Person A", net_pay=Decimal("10000"))
         self.make_staff("Person B", net_pay=Decimal("20000"))
         wb, _ = services.build_payout_sheet(self.run, "X")
         ws = wb.active
         formula = ws.cell(row=3, column=PAYOUT_SHEET_HEADERS.index("Narration") + 1).value
-        self.assertTrue(formula.startswith("=I"), f"expected a reference into column I (Narration), got {formula!r}")
+        self.assertTrue(formula.startswith("=H"), f"expected a reference into column H (Narration), got {formula!r}")
 
 
 class AmountSourcingTests(PayoutSheetTestBase):
@@ -161,22 +160,22 @@ class ActiveOnlyFilterTests(PayoutSheetTestBase):
         self.assertIn("Brand New Hire", names)
 
 
-class TitleAndBankFieldSourcingTests(PayoutSheetTestBase):
-    def test_title_and_bank_fields_come_from_custom_field_values(self):
-        self.make_staff("Full Details", title="Bursar", account_number="0123456789", net_pay=Decimal("1000"))
+class BankFieldSourcingTests(PayoutSheetTestBase):
+    def test_bank_fields_come_from_custom_field_values(self):
+        self.make_staff("Full Details", account_number="0123456789", account_type="Savings", net_pay=Decimal("1000"))
         wb, _ = services.build_payout_sheet(self.run, "X")
         ws = wb.active
-        title_col = PAYOUT_SHEET_HEADERS.index("Title") + 1
         acct_col = PAYOUT_SHEET_HEADERS.index("Account No.") + 1
-        self.assertEqual(ws.cell(row=2, column=title_col).value, "Bursar")
+        acct_type_col = PAYOUT_SHEET_HEADERS.index("Account Type") + 1
         self.assertEqual(ws.cell(row=2, column=acct_col).value, "0123456789")
+        self.assertEqual(ws.cell(row=2, column=acct_type_col).value, "Savings")
 
     def test_missing_custom_field_values_render_blank_not_crash(self):
         self.make_staff("No Bank Details Yet", net_pay=Decimal("1000"))
         wb, _ = services.build_payout_sheet(self.run, "X")  # must not raise
         ws = wb.active
-        title_col = PAYOUT_SHEET_HEADERS.index("Title") + 1
-        self.assertEqual(ws.cell(row=2, column=title_col).value, "")
+        acct_col = PAYOUT_SHEET_HEADERS.index("Account No.") + 1
+        self.assertEqual(ws.cell(row=2, column=acct_col).value, "")
 
 
 class PermissionGateTests(PayoutSheetTestBase):
@@ -493,10 +492,12 @@ class ReceiptPDFOverflowTests(TestCase):
         self.client = APIClient()
 
     def _rendered_html(self):
+        import requests as requests_lib
         from unittest.mock import patch
 
         self.client.force_authenticate(self.student.user)
-        with patch("apps.finance.views.pisa.CreatePDF") as mock_create:
+        with patch("apps.finance.views.pisa.CreatePDF") as mock_create, \
+                patch("common.pdf.requests.get", side_effect=requests_lib.ConnectionError("no network in tests")):
             mock_create.return_value.err = 0
             self.client.get(f"/api/v1/finance/payments/{self.payment.id}/receipt.pdf")
         return mock_create.call_args[0][0]

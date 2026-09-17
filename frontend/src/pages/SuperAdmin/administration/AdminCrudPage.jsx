@@ -171,7 +171,7 @@ export default function AdminCrudPage({
                       <tr key={item.id} className="hover:bg-surface-container-low transition-colors">
                         {resolvedColumns.map((col) => (
                           <td key={col.key} className="px-lg py-4 font-body-md text-body-md text-on-surface">
-                            {col.render ? col.render(item) : String(item[col.key] ?? '—')}
+                            {col.render ? col.render(item) : String(item[col.key] ?? 'N/A')}
                           </td>
                         ))}
                         <td className="px-lg py-4 text-right whitespace-nowrap">

@@ -87,7 +87,7 @@ export default function SuperAdminGeneralSettings() {
           )}
           {saved && (
             <p className="font-label-md text-label-md text-secondary bg-secondary-container/20 border border-secondary/20 rounded-lg px-md py-sm">
-              Saved — the header, sidebar, and login screen now reflect these changes.
+              Saved. The header, sidebar, and login screen now reflect these changes.
             </p>
           )}
 

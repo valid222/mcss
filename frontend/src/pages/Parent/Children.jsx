@@ -13,7 +13,7 @@ function Field({ label, value }) {
   return (
     <div className="space-y-1">
       <p className="font-label-sm text-label-sm text-outline uppercase tracking-tight">{label}</p>
-      <p className="font-body-sm text-body-sm text-on-surface">{value || '—'}</p>
+      <p className="font-body-sm text-body-sm text-on-surface">{value || 'N/A'}</p>
     </div>
   );
 }

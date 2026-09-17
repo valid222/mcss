@@ -263,3 +263,89 @@ class FullOnboardingActivationTests(AdmissionsDynamicFieldsTestBase):
         res = self.client.get("/api/v1/academics/students/my-children")
         child = next(c for c in res.json()["data"] if c["id"] == str(student.id))
         self.assertEqual(child["class_arm_label"], str(holding_arm))
+
+
+class ListBanksTests(TestCase):
+    """paystack.list_banks() — the shared bank-picker data source for every
+    "enter your bank details" screen (Staff Registration, self-service
+    profile, Non-Academic Staff Pay). Paystack's own `code` per bank *is*
+    the CBN sort code the payout sheet needs, so this is the one place that
+    mapping is fetched from, cached, and reused."""
+
+    def setUp(self):
+        from django.core.cache import cache
+
+        cache.clear()
+        secret_setting = SystemSetting(key="payments.paystack.secret_key", group="payments", is_secret=True)
+        secret_setting.set_value("sk_test_fake")
+        secret_setting.save()
+
+    def _fake_bank_response(self, banks):
+        from unittest.mock import Mock
+
+        resp = Mock()
+        resp.raise_for_status = Mock()
+        resp.json.return_value = {"status": True, "data": banks}
+        return resp
+
+    def test_returns_name_and_code_sorted_by_name(self):
+        from unittest.mock import patch
+
+        from apps.admissions import paystack
+
+        banks = [
+            {"name": "Zenith Bank", "code": "057", "active": True},
+            {"name": "Access Bank", "code": "044", "active": True},
+        ]
+        with patch("apps.admissions.paystack.requests.get", return_value=self._fake_bank_response(banks)):
+            result = paystack.list_banks()
+        self.assertEqual(result, [{"name": "Access Bank", "code": "044"}, {"name": "Zenith Bank", "code": "057"}])
+
+    def test_inactive_and_codeless_entries_are_dropped(self):
+        from unittest.mock import patch
+
+        from apps.admissions import paystack
+
+        banks = [
+            {"name": "Dead Bank", "code": "099", "active": False},
+            {"name": "No Code Bank", "active": True},
+            {"name": "Good Bank", "code": "011", "active": True},
+        ]
+        with patch("apps.admissions.paystack.requests.get", return_value=self._fake_bank_response(banks)):
+            result = paystack.list_banks()
+        self.assertEqual(result, [{"name": "Good Bank", "code": "011"}])
+
+    def test_second_call_is_served_from_cache_not_a_new_request(self):
+        from unittest.mock import patch
+
+        from apps.admissions import paystack
+
+        banks = [{"name": "Good Bank", "code": "011", "active": True}]
+        with patch("apps.admissions.paystack.requests.get", return_value=self._fake_bank_response(banks)) as mock_get:
+            paystack.list_banks()
+            paystack.list_banks()
+        self.assertEqual(mock_get.call_count, 1)
+
+    def test_network_failure_returns_an_empty_list_not_an_error(self):
+        import requests as requests_lib
+        from unittest.mock import patch
+
+        from apps.admissions import paystack
+
+        with patch("apps.admissions.paystack.requests.get", side_effect=requests_lib.ConnectionError("down")):
+            result = paystack.list_banks()
+        self.assertEqual(result, [])
+
+    def test_unconfigured_paystack_returns_an_empty_list(self):
+        from apps.admissions import paystack
+
+        SystemSetting.objects.filter(key="payments.paystack.secret_key").delete()
+        self.assertEqual(paystack.list_banks(), [])
+
+
+class BanksEndpointTests(TestCase):
+    def test_banks_endpoint_is_public_and_returns_a_list(self):
+        client = APIClient()
+        res = client.get("/api/v1/finance/banks")
+        self.assertEqual(res.status_code, 200)
+        self.assertIsInstance(res.json()["data"], list)

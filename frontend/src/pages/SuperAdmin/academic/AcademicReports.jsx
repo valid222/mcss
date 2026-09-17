@@ -14,7 +14,7 @@ export default function SuperAdminAcademicReports() {
     <DashboardPageShell
       pageTitle="Academic Reports"
       title="Academic Reports"
-      subtitle={report?.session ? `${report.session}${report.term ? ` — ${report.term} Term` : ''}` : 'Drill-down academic statistics.'}
+      subtitle={report?.session ? `${report.session}${report.term ? `: ${report.term} Term` : ''}` : 'Drill-down academic statistics.'}
       loading={loading}
       error={error}
       onReload={reload}
@@ -24,8 +24,8 @@ export default function SuperAdminAcademicReports() {
         <div className="space-y-lg">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-md">
             <StatCard icon="school" label="Active Students" value={report.total_students} />
-            <StatCard icon="fact_check" label="Attendance Rate" value={report.attendance_rate !== null ? `${report.attendance_rate}%` : '—'} />
-            <StatCard icon="quiz" label="Most Recent Exam" value={report.recent_exam?.name || '—'} />
+            <StatCard icon="fact_check" label="Attendance Rate" value={report.attendance_rate !== null ? `${report.attendance_rate}%` : 'N/A'} />
+            <StatCard icon="quiz" label="Most Recent Exam" value={report.recent_exam?.name || 'N/A'} />
           </div>
 
           <div>
@@ -60,7 +60,7 @@ export default function SuperAdminAcademicReports() {
 
           <div>
             <h3 className="font-headline-md text-headline-sm text-on-surface mb-sm">
-              Average Scores by Subject {report.recent_exam ? `— ${report.recent_exam.name}` : ''}
+              Average Scores by Subject {report.recent_exam ? `(${report.recent_exam.name})` : ''}
             </h3>
             {report.average_scores_by_subject.length === 0 ? (
               <Card padding="lg">

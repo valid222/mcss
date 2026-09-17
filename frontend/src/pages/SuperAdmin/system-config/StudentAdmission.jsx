@@ -68,7 +68,7 @@ export default function SuperAdminStudentAdmissionSettings() {
 
           <form onSubmit={handleSubmit} className="space-y-lg">
             {saveError && <p className="font-label-md text-label-md text-error bg-error-container/20 border border-error/20 rounded-lg px-md py-sm max-w-3xl">{saveError}</p>}
-            {saved && <p className="font-label-md text-label-md text-secondary bg-secondary-container/20 border border-secondary/20 rounded-lg px-md py-sm max-w-3xl">Saved — new students and applications will use the updated format.</p>}
+            {saved && <p className="font-label-md text-label-md text-secondary bg-secondary-container/20 border border-secondary/20 rounded-lg px-md py-sm max-w-3xl">Saved. New students and applications will use the updated format.</p>}
 
             <Card padding="lg" className="max-w-3xl">
               <h2 className="font-headline-md text-headline-md text-primary mb-md">Numbering</h2>
@@ -77,7 +77,7 @@ export default function SuperAdminStudentAdmissionSettings() {
                   <FormField key={field.key} field={field} value={values[field.key]} onChange={(v) => { setSaved(false); setValues((p) => ({ ...p, [field.key]: v })); }} />
                 ))}
               </div>
-              <p className="font-label-sm text-label-sm text-outline mt-sm">Use {'{year}'} and {'{seq:0N}'} (zero-padded to N digits) — e.g. MC/{'{year}'}/{'{seq:04}'} → MC/2026/0001.</p>
+              <p className="font-label-sm text-label-sm text-outline mt-sm">Use {'{year}'} and {'{seq:0N}'} (zero-padded to N digits), e.g. MC/{'{year}'}/{'{seq:04}'} → MC/2026/0001.</p>
             </Card>
 
             <Card padding="lg" className="max-w-3xl">
@@ -86,7 +86,7 @@ export default function SuperAdminStudentAdmissionSettings() {
                 <Badge tone={isEffectivelyOpen ? 'success' : 'secondary'}>{isEffectivelyOpen ? 'Open' : 'Closed'}</Badge>
               </div>
               <p className="font-label-sm text-label-sm text-on-surface-variant mb-lg">
-                The public Apply form only accepts new applications while this is open — nothing here is automatic until you turn it on.
+                The public Apply form only accepts new applications while this is open; nothing here is automatic until you turn it on.
               </p>
               <div className="space-y-lg">
                 <FormField
@@ -116,7 +116,7 @@ export default function SuperAdminStudentAdmissionSettings() {
                 />
                 <p className="font-label-sm text-label-sm text-outline">
                   Leave the dates blank for an open-ended window controlled purely by the switch above. If both are set, applications close
-                  automatically once the date passes — you don't have to remember to come back and turn it off.
+                  automatically once the date passes, so you don't have to remember to come back and turn it off.
                 </p>
               </div>
             </Card>

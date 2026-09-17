@@ -53,7 +53,7 @@ export default function SuperAdminCommunication() {
       <div className="space-y-lg sm:space-y-xl">
         <PageHeader
           title="Communication"
-          subtitle="Broadcast an announcement to a group of users — delivered instantly via the in-app notification bell."
+          subtitle="Broadcast an announcement to a group of users. Delivered instantly via the in-app notification bell."
         />
         <Card padding="lg" className="max-w-2xl">
           <form onSubmit={handleSubmit} className="space-y-lg">

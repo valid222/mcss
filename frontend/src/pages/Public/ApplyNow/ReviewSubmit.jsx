@@ -30,9 +30,9 @@ export default function ApplyReviewSubmit() {
   const bioFields = [
     ['Full Legal Name', fullName],
     ['Level', draft.level === 'primary' ? 'Primary' : 'Secondary'],
-    ['Date of Birth', draft.date_of_birth || '—'],
-    ['Present Class', draft.present_class || '—'],
-    ['Applying For', className || '—'],
+    ['Date of Birth', draft.date_of_birth || 'N/A'],
+    ['Present Class', draft.present_class || 'N/A'],
+    ['Applying For', className || 'N/A'],
   ];
 
   const readyDocs = Object.entries(draft.documents_ready || {}).filter(([, v]) => v).map(([k]) => k);
@@ -108,7 +108,7 @@ export default function ApplyReviewSubmit() {
               ))}
               <div className="sm:col-span-2 space-y-xs pt-md border-t border-outline/10">
                 <label className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Residential Address</label>
-                <p className="font-body-lg text-body-lg text-on-surface">{draft.address || '—'}</p>
+                <p className="font-body-lg text-body-lg text-on-surface">{draft.address || 'N/A'}</p>
               </div>
             </div>
           </section>
@@ -136,7 +136,7 @@ export default function ApplyReviewSubmit() {
                 </div>
                 <div>
                   <p className="font-label-sm text-label-sm text-on-surface-variant">Phone Number</p>
-                  <p className="font-label-md text-label-md">{draft.guardian_phone || '—'}</p>
+                  <p className="font-label-md text-label-md">{draft.guardian_phone || 'N/A'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-md">
@@ -145,7 +145,7 @@ export default function ApplyReviewSubmit() {
                 </div>
                 <div>
                   <p className="font-label-sm text-label-sm text-on-surface-variant">Email Address</p>
-                  <p className="font-label-md text-label-md">{draft.guardian_email || '—'}</p>
+                  <p className="font-label-md text-label-md">{draft.guardian_email || 'N/A'}</p>
                 </div>
               </div>
             </div>

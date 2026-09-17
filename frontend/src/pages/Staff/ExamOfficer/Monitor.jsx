@@ -33,7 +33,7 @@ export default function ExamOfficerMonitor() {
     setResetting(true);
     setResetError('');
     try {
-      await api.post(`/exam/attempts/${resetTarget.id}/reset`, { reason: 'Technical failure — reset from Live Monitor' });
+      await api.post(`/exam/attempts/${resetTarget.id}/reset`, { reason: 'Technical failure, reset from Live Monitor' });
       setResetTarget(null);
       const result = await api.get(`/exam/exams/${selected}/monitor`);
       setMonitor(result);
@@ -63,7 +63,7 @@ export default function ExamOfficerMonitor() {
       portalId="examOfficer"
       pageTitle="Live Monitor"
       title="Live Monitor"
-      subtitle="Who's writing, who's submitted — refreshes automatically every few seconds."
+      subtitle="Who's writing, who's submitted. Refreshes automatically every few seconds."
       loading={loading}
       error={error}
       onReload={reload}
@@ -136,7 +136,7 @@ export default function ExamOfficerMonitor() {
       <ConfirmDialog
         open={!!resetTarget}
         title="Reset This Attempt?"
-        message={`This can't be undone. ${resetTarget?.student_name}'s current answers are discarded entirely — their next Start Attempt draws a brand-new random question set. Only do this for a genuine technical failure.${resetError ? ` ${resetError}` : ''}`}
+        message={`This can't be undone. ${resetTarget?.student_name}'s current answers are discarded entirely, and their next Start Attempt draws a brand-new random question set. Only do this for a genuine technical failure.${resetError ? ` ${resetError}` : ''}`}
         confirmLabel="Reset"
         loading={resetting}
         onConfirm={handleReset}

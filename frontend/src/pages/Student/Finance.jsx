@@ -59,14 +59,14 @@ export default function StudentFinance() {
     setVerifyError('');
     api.post('/finance/payments/paystack/verify', { reference })
       .then(() => {
-        setVerifyMessage('Payment confirmed — your ticket has been updated.');
+        setVerifyMessage('Payment confirmed. Your ticket has been updated.');
         reload();
       })
       .catch((err) => {
         setVerifyError(
           err instanceof ApiError
             ? err.message
-            : "We couldn't confirm that payment automatically. If you were charged, it will still be applied shortly — contact the school if it isn't reflected soon.",
+            : "We couldn't confirm that payment automatically. If you were charged, it will still be applied shortly; contact the school if it isn't reflected soon.",
         );
       })
       .finally(() => setVerifying(false));
@@ -81,8 +81,8 @@ export default function StudentFinance() {
       const result = await api.post(`/finance/fee-items/${item.id}/purchase`, {});
       setPurchaseMessage(
         result.created
-          ? `Ticket created for ${item.name} — pay it below whenever you're ready.`
-          : `You already have an open ticket for ${item.name} — pay it below whenever you're ready.`,
+          ? `Ticket created for ${item.name}. Pay it below whenever you're ready.`
+          : `You already have an open ticket for ${item.name}. Pay it below whenever you're ready.`,
       );
       setSelectedFeeItemId('');
       reload();
@@ -137,7 +137,7 @@ export default function StudentFinance() {
   return (
     <AppShell portalId="student" pageTitle="Fees & Receipts" user={{ name: user?.full_name || 'Student' }}>
       <div className="space-y-lg sm:space-y-xl">
-        <PageHeader title="Fees & Receipts" subtitle="Every fee ticket you owe, and every payment you've made — pay online whenever a ticket is outstanding, and download the receipt once it's paid." />
+        <PageHeader title="Fees & Receipts" subtitle="Every fee ticket you owe, and every payment you've made. Pay online whenever a ticket is outstanding, and download the receipt once it's paid." />
 
         {restrictions.length > 0 && (
           <Card padding="lg" className="border border-error/30 bg-error-container/10">
@@ -200,7 +200,7 @@ export default function StudentFinance() {
                   <option value="" disabled>Select a fee item…</option>
                   {feeItems.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.name} — ₦{Number(item.amount).toLocaleString()}
+                      {item.name} (₦{Number(item.amount).toLocaleString()})
                     </option>
                   ))}
                 </select>

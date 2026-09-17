@@ -84,7 +84,7 @@ export default function SuperAdminFinancialReports() {
             ) : (
               <Card padding="lg">
                 <p className="font-body-md text-body-md text-on-surface">
-                  {report.latest_payroll_run.month}/{report.latest_payroll_run.year} — {report.latest_payroll_run.status} — Total net pay: {report.latest_payroll_run.total_net_pay}
+                  {report.latest_payroll_run.month}/{report.latest_payroll_run.year} · {report.latest_payroll_run.status} · Total net pay: {report.latest_payroll_run.total_net_pay}
                 </p>
               </Card>
             )}

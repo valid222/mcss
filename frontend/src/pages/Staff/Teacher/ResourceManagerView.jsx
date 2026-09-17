@@ -121,7 +121,7 @@ export default function ResourceManagerView({ title, subtitle, fixedCategory, em
       <Drawer
         open={open}
         onClose={() => setOpen(false)}
-        title={`Upload — ${title}`}
+        title={`Upload: ${title}`}
         footer={(
           <Button variant="primary" onClick={handleSubmit} disabled={saving || !form.class_arm || !form.title}>
             {saving ? 'Uploading…' : 'Upload'}

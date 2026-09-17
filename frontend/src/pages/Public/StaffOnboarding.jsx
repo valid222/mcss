@@ -3,6 +3,10 @@ import PublicHeader from '../../components/public/PublicHeader.jsx';
 import PublicFooter from '../../components/public/PublicFooter.jsx';
 import FormField from '../../components/ui/FormField.jsx';
 import { api, ApiError } from '../../lib/api.js';
+import { getBanks } from '../../lib/banks.js';
+import {
+  STAFF_HIDDEN_BANK_KEYS, deriveFullName, overrideDynamicFields, valueGetterByKey,
+} from '../../lib/dynamicFieldOverrides.js';
 
 const EMPTY_FORM = {
   staff_type: '', full_name: '', email: '', phone: '', sex: '', date_of_birth: '',
@@ -43,6 +47,7 @@ export default function StaffOnboarding() {
   // apps.staff_onboarding.views.StaffApplicationConfigView.
   const [customFieldValues, setCustomFieldValues] = useState({});
   const [claims, setClaims] = useState([]);
+  const [banks, setBanks] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [done, setDone] = useState(false);
@@ -50,6 +55,7 @@ export default function StaffOnboarding() {
   useEffect(() => {
     document.title = 'Staff Registration | MCSS Portal';
     api.get('/staff-applications/config', { auth: false }).then(setConfig).catch(() => setConfigError(true));
+    getBanks().then(setBanks);
   }, []);
 
   const update = (key, v) => setValues((prev) => ({ ...prev, [key]: v }));
@@ -62,6 +68,20 @@ export default function StaffOnboarding() {
   const isNonAcademic = values.staff_type === 'non_academic';
   const isTeacher = values.staff_type === 'teacher';
   const isAcademic = values.staff_type && !isNonAcademic;
+
+  // Every staff type now shares the same Super-Admin-defined "staff"
+  // Biodata/bank fields (previously academic-only) — whatever fields
+  // aren't there yet fall back to the legacy hardcoded inputs below, so
+  // the form never breaks for a school that hasn't set Biodata up yet.
+  const dynamicFields = config?.custom_fields || [];
+  const fieldKeys = new Set(dynamicFields.map((f) => f.key));
+  const hasNameFields = fieldKeys.has('first_name') && fieldKeys.has('last_name');
+  const hasEmailField = fieldKeys.has('email');
+  const hasPhoneField = fieldKeys.has('phone');
+  const hasDobField = fieldKeys.has('date_of_birth');
+  const visibleDynamicFields = overrideDynamicFields(dynamicFields, customFieldValues, { banks })
+    .filter((f) => !STAFF_HIDDEN_BANK_KEYS.includes(f.key));
+  const getDynamicValue = valueGetterByKey(dynamicFields, customFieldValues);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,14 +96,14 @@ export default function StaffOnboarding() {
       } else {
         delete payload.subject_claims;
       }
-      if (isAcademic) {
-        payload.custom_field_values = Object.entries(customFieldValues)
-          .filter(([, v]) => v !== '' && v !== undefined)
-          .map(([field_id, value]) => ({ field_id, value }));
-      } else {
-        delete payload.sex;
-        delete payload.date_of_birth;
-      }
+      payload.custom_field_values = Object.entries(customFieldValues)
+        .filter(([, v]) => v !== '' && v !== undefined)
+        .map(([field_id, value]) => ({ field_id, value }));
+      if (!isAcademic) delete payload.sex;
+      if (hasDobField) delete payload.date_of_birth;
+      if (hasNameFields) payload.full_name = deriveFullName(getDynamicValue) || '';
+      if (hasEmailField) payload.email = getDynamicValue('email') || '';
+      if (hasPhoneField) payload.phone = getDynamicValue('phone') || '';
       if (!isTeacher || !values.is_form_teacher) {
         payload.form_teacher_class_arm = '';
       }
@@ -129,7 +149,7 @@ export default function StaffOnboarding() {
               <span className="material-symbols-outlined text-secondary text-5xl mb-md">task_alt</span>
               <h2 className="font-headline-md text-headline-sm text-primary mb-sm">Application Submitted</h2>
               <p className="font-body-md text-on-surface-variant">
-                Thank you — the school will review your details shortly. If approved, your login details will be sent
+                Thank you. The school will review your details shortly. If approved, your login details will be sent
                 to the contact you provided.
               </p>
             </div>
@@ -169,12 +189,22 @@ export default function StaffOnboarding() {
 
               {values.staff_type && (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                    <FormField field={{ key: 'full_name', id: 'full_name', label: 'Full Name', type: 'text', required: true }} value={values.full_name} onChange={(v) => update('full_name', v)} error={fieldError('full_name')} />
-                    <FormField field={{ key: 'email', id: 'email', label: 'Email', type: 'text' }} value={values.email} onChange={(v) => update('email', v)} error={fieldError('email')} />
-                    <FormField field={{ key: 'phone', id: 'phone', label: 'Phone', type: 'text' }} value={values.phone} onChange={(v) => update('phone', v)} error={fieldError('phone')} />
-                  </div>
-                  <p className="font-label-sm text-label-sm text-outline -mt-sm">Provide at least an email or a phone number so the school can reach you.</p>
+                  {(!hasNameFields || !hasEmailField || !hasPhoneField) && (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        {!hasNameFields && (
+                          <FormField field={{ key: 'full_name', id: 'full_name', label: 'Full Name', type: 'text', required: true }} value={values.full_name} onChange={(v) => update('full_name', v)} error={fieldError('full_name')} />
+                        )}
+                        {!hasEmailField && (
+                          <FormField field={{ key: 'email', id: 'email', label: 'Email', type: 'text' }} value={values.email} onChange={(v) => update('email', v)} error={fieldError('email')} />
+                        )}
+                        {!hasPhoneField && (
+                          <FormField field={{ key: 'phone', id: 'phone', label: 'Phone', type: 'text' }} value={values.phone} onChange={(v) => update('phone', v)} error={fieldError('phone')} />
+                        )}
+                      </div>
+                      <p className="font-label-sm text-label-sm text-outline -mt-sm">Provide at least an email or a phone number so the school can reach you.</p>
+                    </>
+                  )}
 
                   {isNonAcademic && (
                     <FormField
@@ -185,90 +215,90 @@ export default function StaffOnboarding() {
                     />
                   )}
 
-                  {isAcademic && (
-                    <>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                  {(isAcademic || !hasDobField) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                      {isAcademic && (
                         <FormField field={{ key: 'sex', id: 'sex', label: 'Sex', type: 'select', options: [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }] }} value={values.sex} onChange={(v) => update('sex', v)} />
-                        <FormField field={{ key: 'date_of_birth', id: 'date_of_birth', label: 'Date of Birth', type: 'date' }} value={values.date_of_birth} onChange={(v) => update('date_of_birth', v)} />
-                      </div>
-
-                      <div className="border-t border-outline/10 pt-lg space-y-lg">
-                        <div>
-                          <h3 className="font-label-md text-label-md font-bold text-primary">Account Details</h3>
-                          <p className="font-label-sm text-label-sm text-on-surface-variant">
-                            Set by the school — whatever's defined here is what's needed for your records and payroll.
-                          </p>
-                        </div>
-                        {fieldError('custom_field_values') && <p className="font-label-sm text-label-sm text-error">{fieldError('custom_field_values')}</p>}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                          {config.custom_fields.map((f, i) => (
-                            <Fragment key={f.field_id}>
-                              {f.group_label && f.group_label !== config.custom_fields[i - 1]?.group_label && (
-                                <h4 className="md:col-span-2 font-label-sm text-label-sm font-bold text-on-surface-variant uppercase tracking-wide">
-                                  {f.group_label}
-                                </h4>
-                              )}
-                              <FormField
-                                field={{
-                                  key: f.field_id, id: `custom_${f.field_id}`, label: f.label, type: f.field_type,
-                                  required: f.required, placeholder: f.placeholder,
-                                  options: (f.options || []).map((o) => ({ value: o, label: o })),
-                                }}
-                                value={customFieldValues[f.field_id] ?? ''}
-                                onChange={(v) => updateCustomField(f.field_id, v)}
-                              />
-                            </Fragment>
-                          ))}
-                        </div>
-                      </div>
-
-                      {isTeacher && (
-                        <div className="border-t border-outline/10 pt-lg space-y-md">
-                          <div>
-                            <h3 className="font-label-md text-label-md font-bold text-primary">Subjects &amp; Classes You Teach</h3>
-                            <p className="font-label-sm text-label-sm text-on-surface-variant">Add every subject and class combination you currently teach.</p>
-                          </div>
-                          {fieldError('subject_claims') && <p className="font-label-sm text-label-sm text-error">{fieldError('subject_claims')}</p>}
-                          <div className="space-y-sm">
-                            {claims.map((claim) => (
-                              <SubjectClaimRow
-                                key={claim.key}
-                                claim={claim}
-                                subjects={config.subjects}
-                                classArms={config.class_arms}
-                                onChange={(next) => updateClaim(claim.key, next)}
-                                onRemove={() => removeClaim(claim.key)}
-                              />
-                            ))}
-                          </div>
-                          <button type="button" onClick={addClaim} className="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[18px]">add</span> Add Subject &amp; Class
-                          </button>
-
-                          <div className="border-t border-outline/10 pt-md">
-                            <label className="flex items-center gap-sm cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={values.is_form_teacher}
-                                onChange={(e) => update('is_form_teacher', e.target.checked)}
-                                className="w-5 h-5 rounded border-outline text-primary focus:ring-primary"
-                              />
-                              <span className="font-label-md text-label-md text-on-surface">I am the form/class teacher of a class</span>
-                            </label>
-                            {values.is_form_teacher && (
-                              <div className="mt-md max-w-sm">
-                                <FormField
-                                  field={{ key: 'form_teacher_class_arm', id: 'form_teacher_class_arm', label: 'Which Class', type: 'select', required: true, options: config.class_arms.map((a) => ({ value: a.id, label: a.name })) }}
-                                  value={values.form_teacher_class_arm}
-                                  onChange={(v) => update('form_teacher_class_arm', v)}
-                                  error={fieldError('form_teacher_class_arm')}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
                       )}
-                    </>
+                      {!hasDobField && (
+                        <FormField field={{ key: 'date_of_birth', id: 'date_of_birth', label: 'Date of Birth', type: 'date' }} value={values.date_of_birth} onChange={(v) => update('date_of_birth', v)} />
+                      )}
+                    </div>
+                  )}
+
+                  {visibleDynamicFields.length > 0 && (
+                    <div className="border-t border-outline/10 pt-lg space-y-lg">
+                      <div>
+                        <h3 className="font-label-md text-label-md font-bold text-primary">Account Details</h3>
+                        <p className="font-label-sm text-label-sm text-on-surface-variant">
+                          Set by the school: whatever's defined here is what's needed for your records and payroll.
+                        </p>
+                      </div>
+                      {fieldError('custom_field_values') && <p className="font-label-sm text-label-sm text-error">{fieldError('custom_field_values')}</p>}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        {visibleDynamicFields.map((f, i) => (
+                          <Fragment key={f.field_id}>
+                            {f.group_label && f.group_label !== visibleDynamicFields[i - 1]?.group_label && (
+                              <h4 className="md:col-span-2 font-label-md text-label-md font-extrabold text-primary uppercase tracking-wide">
+                                {f.group_label}
+                              </h4>
+                            )}
+                            <FormField
+                              field={{ ...f, key: f.field_id, id: `custom_${f.field_id}` }}
+                              value={customFieldValues[f.field_id] ?? ''}
+                              onChange={(v) => updateCustomField(f.field_id, v)}
+                            />
+                          </Fragment>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {isTeacher && (
+                    <div className="border-t border-outline/10 pt-lg space-y-md">
+                      <div>
+                        <h3 className="font-label-md text-label-md font-bold text-primary">Subjects &amp; Classes You Teach</h3>
+                        <p className="font-label-sm text-label-sm text-on-surface-variant">Add every subject and class combination you currently teach.</p>
+                      </div>
+                      {fieldError('subject_claims') && <p className="font-label-sm text-label-sm text-error">{fieldError('subject_claims')}</p>}
+                      <div className="space-y-sm">
+                        {claims.map((claim) => (
+                          <SubjectClaimRow
+                            key={claim.key}
+                            claim={claim}
+                            subjects={config.subjects}
+                            classArms={config.class_arms}
+                            onChange={(next) => updateClaim(claim.key, next)}
+                            onRemove={() => removeClaim(claim.key)}
+                          />
+                        ))}
+                      </div>
+                      <button type="button" onClick={addClaim} className="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[18px]">add</span> Add Subject &amp; Class
+                      </button>
+
+                      <div className="border-t border-outline/10 pt-md">
+                        <label className="flex items-center gap-sm cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={values.is_form_teacher}
+                            onChange={(e) => update('is_form_teacher', e.target.checked)}
+                            className="w-5 h-5 rounded border-outline text-primary focus:ring-primary"
+                          />
+                          <span className="font-label-md text-label-md text-on-surface">I am the form/class teacher of a class</span>
+                        </label>
+                        {values.is_form_teacher && (
+                          <div className="mt-md max-w-sm">
+                            <FormField
+                              field={{ key: 'form_teacher_class_arm', id: 'form_teacher_class_arm', label: 'Which Class', type: 'select', required: true, options: config.class_arms.map((a) => ({ value: a.id, label: a.name })) }}
+                              value={values.form_teacher_class_arm}
+                              onChange={(v) => update('form_teacher_class_arm', v)}
+                              error={fieldError('form_teacher_class_arm')}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   )}
 
                   <div className="flex justify-end pt-md border-t border-outline/10">

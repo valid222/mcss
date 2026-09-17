@@ -12,7 +12,7 @@ export default function SuperAdminOverview() {
     <DashboardPageShell
       pageTitle="Overview / Statistics"
       title="Overview / Statistics"
-      subtitle="Live counts from the database — fills in automatically as records are created."
+      subtitle="Live counts from the database, fills in automatically as records are created."
       loading={loading}
       error={error}
       onReload={reload}

@@ -73,7 +73,7 @@ export default function AttachmentUploadField({ label, required, value, onChange
           </button>
         )}
       </div>
-      {!error && <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">PDF, JPG, PNG, DOC, or DOCX — up to 10MB.</p>}
+      {!error && <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">PDF, JPG, PNG, DOC, or DOCX (up to 10MB).</p>}
       {error && <p className="font-label-sm text-label-sm text-error mt-1">{error}</p>}
       <input ref={inputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onChange={handleFile} className="hidden" />
     </div>

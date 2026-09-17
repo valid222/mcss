@@ -136,7 +136,7 @@ export default function SuperAdminTransport() {
                     {routes.map((r) => (
                       <tr key={r.id} className="hover:bg-surface-container-low transition-colors">
                         <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{r.name}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{r.fee_amount ?? '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{r.fee_amount ?? 'N/A'}</td>
                         <td className="px-lg py-4 text-right">
                           <button type="button" onClick={() => setDeleteTarget({ type: 'route', id: r.id })} className="p-2 text-outline hover:text-error transition-colors">
                             <span className="material-symbols-outlined text-[20px]">delete</span>
@@ -168,8 +168,8 @@ export default function SuperAdminTransport() {
                     {vehicles.map((v) => (
                       <tr key={v.id} className="hover:bg-surface-container-low transition-colors">
                         <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{v.plate_number}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{v.driver_name || '—'}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{v.route_name || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{v.driver_name || 'N/A'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{v.route_name || 'N/A'}</td>
                         <td className="px-lg py-4 text-right">
                           <button type="button" onClick={() => setDeleteTarget({ type: 'vehicle', id: v.id })} className="p-2 text-outline hover:text-error transition-colors">
                             <span className="material-symbols-outlined text-[20px]">delete</span>
@@ -202,7 +202,7 @@ export default function SuperAdminTransport() {
                       <tr key={a.id} className="hover:bg-surface-container-low transition-colors">
                         <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{a.student_name}</td>
                         <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{a.route_name}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{a.pickup_point || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{a.pickup_point || 'N/A'}</td>
                         <td className="px-lg py-4 text-right">
                           <button type="button" onClick={() => setDeleteTarget({ type: 'assignment', id: a.id })} className="p-2 text-outline hover:text-error transition-colors">
                             <span className="material-symbols-outlined text-[20px]">delete</span>

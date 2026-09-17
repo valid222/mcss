@@ -15,7 +15,7 @@ export default function PrincipalFeeReports() {
       portalId="principal"
       pageTitle="Fee Reports"
       title="Fee Reports"
-      subtitle={report?.session ? `Fees collected, outstanding, and financial summaries — ${report.session}.` : 'Fees collected, outstanding, and financial summaries.'}
+      subtitle={report?.session ? `Fees collected, outstanding, and financial summaries: ${report.session}.` : 'Fees collected, outstanding, and financial summaries.'}
       loading={loading}
       error={error}
       onReload={reload}

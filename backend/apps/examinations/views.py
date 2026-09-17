@@ -172,7 +172,11 @@ class ExamSettingsView(ConfigPermissionMixin, APIView):
     see StaffOnboardingToggleView for the same reasoning."""
 
     def get(self, request):
-        return success(data={"min_bank_size": services.get_min_bank_size()})
+        return success(data={
+            "min_bank_size": services.get_min_bank_size(),
+            "instructions": services.get_exam_instructions(),
+            "completion_message": services.get_exam_completion_message(),
+        })
 
     def post(self, request):
         from apps.settings_app.models import SystemSetting
@@ -185,12 +189,23 @@ class ExamSettingsView(ConfigPermissionMixin, APIView):
         if min_bank_size < 1:
             return failure(message="min_bank_size must be at least 1.", status=400)
 
+        instructions = request.data.get("instructions", services.get_exam_instructions())
+        completion_message = request.data.get("completion_message", services.get_exam_completion_message())
+
         SystemSetting.objects.update_or_create(
             key="exam.min_bank_size", defaults={"group": "exam", "value": min_bank_size},
         )
+        SystemSetting.objects.update_or_create(
+            key="exam.instructions", defaults={"group": "exam", "value": instructions},
+        )
+        SystemSetting.objects.update_or_create(
+            key="exam.completion_message", defaults={"group": "exam", "value": completion_message},
+        )
         log(actor=request.user, action="examinations.settings_updated",
             changes={"min_bank_size": min_bank_size}, request=request)
-        return success(message="Exam settings updated.", data={"min_bank_size": min_bank_size})
+        return success(message="Exam settings updated.", data={
+            "min_bank_size": min_bank_size, "instructions": instructions, "completion_message": completion_message,
+        })
 
 
 class QuestionBankApproveView(APIView):
@@ -379,7 +394,29 @@ class ExamAccessLoginView(APIView):
 
         token = issue_exam_session_token(student.user, exam)
         log(actor=student.user, action="examinations.access_login", target=exam, request=request)
-        return success(data={"access_token": token, "student_name": student.user.full_name, "exam": ExamSerializer(exam).data})
+
+        from apps.configuration.models import SchoolProfile
+        from common.pdf import student_header
+
+        profile = SchoolProfile.objects.first()
+        photo_url, logo_url = student_header(request, avatar=student.user.avatar, logo=profile.logo if profile else "")
+        biodata = {
+            "full_name": student.user.full_name,
+            "student_id": student.user.identifier,
+            "registration_number": student.registration_number or "",
+            "class_name": student.class_arm.school_class.name if student.class_arm else "",
+            "arm_name": student.class_arm.name if student.class_arm else "",
+            "gender": student.get_gender_display() if student.gender else "",
+            "photo_url": photo_url,
+            "logo_url": logo_url,
+            "school_name": profile.name if profile else "",
+        }
+        return success(data={
+            "access_token": token, "student_name": student.user.full_name, "exam": ExamSerializer(exam).data,
+            "biodata": biodata,
+            "instructions": services.get_exam_instructions(),
+            "completion_message": services.get_exam_completion_message(),
+        })
 
 
 class AttemptStartView(APIView):

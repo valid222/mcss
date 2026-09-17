@@ -11,7 +11,7 @@ export function formatRelativeTime(isoString) {
 }
 
 export function metricValue(metric) {
-  if (!metric || !metric.available) return '—';
+  if (!metric || !metric.available) return 'N/A';
   return metric.value.toLocaleString();
 }
 

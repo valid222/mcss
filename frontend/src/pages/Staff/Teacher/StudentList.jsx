@@ -60,10 +60,10 @@ export default function TeacherStudentList() {
                 <tbody className="divide-y divide-outline/10">
                   {students.map((s) => (
                     <tr key={s.id}>
-                      <td className="px-lg py-3 font-label-md text-label-md text-secondary">{s.identifier || '—'}</td>
+                      <td className="px-lg py-3 font-label-md text-label-md text-secondary">{s.identifier || 'N/A'}</td>
                       <td className="px-lg py-3 font-body-md text-body-md text-on-surface">{s.full_name}</td>
-                      <td className="px-lg py-3 font-body-sm text-body-sm text-on-surface-variant capitalize">{s.gender || '—'}</td>
-                      <td className="px-lg py-3 font-body-sm text-body-sm text-on-surface-variant">{s.guardian_phone || '—'}</td>
+                      <td className="px-lg py-3 font-body-sm text-body-sm text-on-surface-variant capitalize">{s.gender || 'N/A'}</td>
+                      <td className="px-lg py-3 font-body-sm text-body-sm text-on-surface-variant">{s.guardian_phone || 'N/A'}</td>
                     </tr>
                   ))}
                 </tbody>

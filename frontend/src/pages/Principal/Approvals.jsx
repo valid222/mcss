@@ -44,7 +44,7 @@ export default function PrincipalApprovals() {
       portalId="principal"
       pageTitle="Approvals"
       title="Approvals"
-      subtitle="Everything waiting on your sign-off — result submissions and admission applications."
+      subtitle="Everything waiting on your sign-off: result submissions and admission applications."
       loading={loading}
       error={error}
       onReload={reload}
@@ -62,7 +62,7 @@ export default function PrincipalApprovals() {
                   <Card key={sub.id} padding="lg">
                     <div className="flex items-center justify-between gap-md flex-wrap">
                       <div>
-                        <p className="font-body-md text-body-md font-semibold text-on-surface">{sub.exam_name} — {sub.subject_name} — {sub.class_arm_label}</p>
+                        <p className="font-body-md text-body-md font-semibold text-on-surface">{sub.exam_name} · {sub.subject_name} · {sub.class_arm_label}</p>
                         <p className="font-label-sm text-label-sm text-on-surface-variant">Submitted by {sub.teacher_name || 'Unknown'} on {new Date(sub.submitted_at).toLocaleDateString()}</p>
                       </div>
                       <div className="flex items-center gap-sm">
@@ -90,7 +90,7 @@ export default function PrincipalApprovals() {
                     <div className="flex items-center justify-between gap-md flex-wrap">
                       <div>
                         <p className="font-body-md text-body-md font-semibold text-on-surface">{app.full_name}</p>
-                        <p className="font-label-sm text-label-sm text-on-surface-variant">{app.reference_number} · Applying for {app.class_applying_for_name || '—'}</p>
+                        <p className="font-label-sm text-label-sm text-on-surface-variant">{app.reference_number} · Applying for {app.class_applying_for_name || 'N/A'}</p>
                       </div>
                       <div className="flex items-center gap-sm">
                         <Badge tone="secondary">{app.status}</Badge>

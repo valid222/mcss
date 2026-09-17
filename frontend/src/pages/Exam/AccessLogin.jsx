@@ -36,6 +36,10 @@ export default function ExamAccessLogin() {
         studentName: result.student_name,
         examTitle: result.exam.title,
         durationMinutes: result.exam.duration_minutes,
+        subjectName: result.exam.subject_name,
+        biodata: result.biodata,
+        instructions: result.instructions,
+        completionMessage: result.completion_message,
       });
       navigate(`/exam/${result.exam.id}/take`);
     } catch (err) {

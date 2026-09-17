@@ -72,6 +72,7 @@ DEFAULT_SETTINGS = [
     ("appearance.light_logo", "appearance", "", False),
     ("appearance.dark_logo", "appearance", "", False),
     ("appearance.landscape_logo", "appearance", "", False),
+    ("appearance.landscape_logo_dark", "appearance", "", False),
     ("appearance.school_seal", "appearance", "", False),
     ("appearance.pdf_branding_enabled", "appearance", True, False),
     ("appearance.report_branding_enabled", "appearance", True, False),

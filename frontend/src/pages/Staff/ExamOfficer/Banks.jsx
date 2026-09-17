@@ -44,7 +44,7 @@ export default function ExamOfficerBanks() {
       portalId="examOfficer"
       pageTitle="Question Banks"
       title="Question Banks"
-      subtitle="Every subject's question pool a teacher has submitted — approve once it clears the minimum size."
+      subtitle="Every subject's question pool a teacher has submitted. Approve once it clears the minimum size."
       loading={loading}
       error={error}
       onReload={reload}
@@ -97,7 +97,7 @@ export default function ExamOfficerBanks() {
         </div>
       )}
 
-      <Drawer open={!!viewing} onClose={() => setViewing(null)} title={viewing ? `${viewing.subject_name} — ${viewing.school_class_name}` : ''}>
+      <Drawer open={!!viewing} onClose={() => setViewing(null)} title={viewing ? `${viewing.subject_name}: ${viewing.school_class_name}` : ''}>
         {!viewDetail ? (
           <p className="font-body-md text-body-md text-on-surface-variant">Loading…</p>
         ) : (

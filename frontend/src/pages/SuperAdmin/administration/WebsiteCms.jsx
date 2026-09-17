@@ -8,8 +8,8 @@ const COLUMNS = [
     label: 'Status',
     render: (item) => <Badge tone={item.is_active ? 'success' : 'secondary'}>{item.is_active ? 'Active' : 'Inactive'}</Badge>,
   },
-  { key: 'starts_at', label: 'Starts', render: (item) => (item.starts_at ? new Date(item.starts_at).toLocaleString() : '—') },
-  { key: 'ends_at', label: 'Ends', render: (item) => (item.ends_at ? new Date(item.ends_at).toLocaleString() : '—') },
+  { key: 'starts_at', label: 'Starts', render: (item) => (item.starts_at ? new Date(item.starts_at).toLocaleString() : 'N/A') },
+  { key: 'ends_at', label: 'Ends', render: (item) => (item.ends_at ? new Date(item.ends_at).toLocaleString() : 'N/A') },
 ];
 
 const FORM_FIELDS = [

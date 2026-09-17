@@ -48,6 +48,8 @@ urlpatterns = [
     path("outstanding", views.OutstandingFeesView.as_view(), name="finance-outstanding"),
     path("reminders", views.FeeReminderView.as_view(), name="finance-reminders"),
 
+    path("banks", views.BanksListView.as_view(), name="finance-banks"),
+
     path("salaries", views.StaffSalariesView.as_view(), name="finance-salaries"),
     path("salaries/<uuid:salary_id>", views.StaffSalaryDetailView.as_view(), name="finance-salary-detail"),
 

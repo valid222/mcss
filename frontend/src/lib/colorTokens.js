@@ -156,10 +156,15 @@ export function applyTypographyOverrides({ primaryFont, bodyFont, headingFont, b
   if (baseFontSize) document.documentElement.style.fontSize = `${baseFontSize}px`;
 }
 
+// Ordered sharpest -> roundest — RADIUS_SCALE_OPTIONS (and so the Appearance
+// dropdown) follows this same object key order.
 const RADIUS_SCALES = {
+  sharp: { base: '0.125rem', sm: '0.0625rem', md: '0.25rem', lg: '0.375rem', xl: '0.5rem' },
   compact: { base: '0.5rem', sm: '0.25rem', md: '0.75rem', lg: '1rem', xl: '1.5rem' },
   default: { base: '1rem', sm: '0.5rem', md: '1.5rem', lg: '2rem', xl: '3rem' },
   soft: { base: '1.5rem', sm: '0.75rem', md: '2rem', lg: '2.5rem', xl: '3.5rem' },
+  rounded: { base: '2rem', sm: '1rem', md: '2.5rem', lg: '3rem', xl: '4rem' },
+  pill: { base: '2.5rem', sm: '1.25rem', md: '3rem', lg: '4rem', xl: '9999px' },
 };
 
 export function applyRadiusOverride(scaleName) {

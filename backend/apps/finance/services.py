@@ -59,24 +59,31 @@ def record_paystack_payment(reference):
             invoice.refresh_status()
     return payment, created, None
 
-# Exact column order the bank's own reference template uses, with "Title"
-# inserted right after "Names" per spec. Getting this list right is
-# everything else below derives its column positions from it — nothing is
-# hardcoded to a specific letter, so inserting/reordering a column here
-# can't silently point the Narration formula chain (see _build_payout_rows)
-# at the wrong cell the way a hardcoded "=H2" would.
+# Exact column order the bank's own reference template uses. Getting this
+# list right is everything — else below derives its column positions from
+# it — nothing is hardcoded to a specific letter, so inserting/reordering a
+# column here can't silently point the Narration formula chain (see
+# _build_payout_rows) at the wrong cell the way a hardcoded "=H2" would.
+# ("Title" was removed entirely per spec — not hidden, not blanked; it's
+# not a column here at all anymore.)
 PAYOUT_SHEET_HEADERS = [
-    "Payment Reference", "Beneficiary Code", "Names", "Title", "Account No.",
+    "Payment Reference", "Beneficiary Code", "Names", "Account No.",
     "Account Type", "CBN Sort code", "Is CashCard", "Narration", "Amount",
     "Email Address", "Currency Code",
 ]
 # Matches the reference template's widths 1:1 for every column that exists
-# there; "Title" (new) and "Currency Code" (unset in the reference) get a
-# reasonable width of their own.
-PAYOUT_SHEET_COLUMN_WIDTHS = [20.5, 19.5, 44.5, 20, 16.33, 14.33, 21.16, 15, 18.33, 13.16, 30.33, 12]
+# there; "Currency Code" (unset in the reference) gets a reasonable width
+# of its own.
+PAYOUT_SHEET_COLUMN_WIDTHS = [20.5, 19.5, 44.5, 16.33, 14.33, 21.16, 15, 18.33, 13.16, 30.33, 12]
 
-_STAFF_CUSTOM_FIELD_KEYS = [
-    "payment_reference", "beneficiary_code", "title",
+# The bank/payout custom-field keys every staff-type payout row can supply —
+# shared with apps.staff_onboarding, which copies the same keys onto a new
+# NonAcademicStaffPayout's own columns at approval time (that model has no
+# CustomFieldValue detour; see _provision_non_academic_staff), so both paths
+# feed this exact sheet from the exact same key set, never two lists to keep
+# in sync by hand.
+BANK_CUSTOM_FIELD_KEYS = [
+    "payment_reference", "beneficiary_code",
     "account_number", "account_type", "sort_code", "is_cashcard",
 ]
 
@@ -121,7 +128,7 @@ def _staff_bank_details():
 
     fields_by_id = {
         f.id: f.key
-        for f in CustomField.objects.filter(entity=CustomField.Entity.STAFF, key__in=_STAFF_CUSTOM_FIELD_KEYS)
+        for f in CustomField.objects.filter(entity=CustomField.Entity.STAFF, key__in=BANK_CUSTOM_FIELD_KEYS)
     }
     if not fields_by_id:
         return {}
@@ -174,11 +181,11 @@ def build_payout_sheet(run, narration):
     for col, width in enumerate(PAYOUT_SHEET_COLUMN_WIDTHS, start=1):
         ws.column_dimensions[get_column_letter(col)].width = width
 
-    def write_row(row, *, payment_reference, beneficiary_code, names, title, account_no,
+    def write_row(row, *, payment_reference, beneficiary_code, names, account_no,
                   account_type, sort_code, is_cashcard, amount, email, currency_code):
         values = {
             "Payment Reference": payment_reference, "Beneficiary Code": beneficiary_code,
-            "Names": names, "Title": title, "Account No.": account_no,
+            "Names": names, "Account No.": account_no,
             "Account Type": account_type, "CBN Sort code": sort_code,
             "Is CashCard": int(bool(is_cashcard)),
             "Narration": narration if row == 2 else f"={narration_letter}{row - 1}",
@@ -208,7 +215,7 @@ def build_payout_sheet(run, narration):
         write_row(
             row, payment_reference=details.get("payment_reference") or "",
             beneficiary_code=details.get("beneficiary_code") or "", names=user.full_name,
-            title=details.get("title") or "", account_no=details.get("account_number") or "",
+            account_no=details.get("account_number") or "",
             account_type=details.get("account_type") or "", sort_code=details.get("sort_code") or "",
             is_cashcard=details.get("is_cashcard"), amount=amount, email=user.email or "", currency_code="NGN",
         )
@@ -219,7 +226,7 @@ def build_payout_sheet(run, narration):
     for rec in NonAcademicStaffPayout.objects.filter(is_active=True).order_by("full_name"):
         write_row(
             row, payment_reference=rec.payment_reference, beneficiary_code=rec.beneficiary_code,
-            names=rec.full_name, title=rec.title, account_no=rec.account_number,
+            names=rec.full_name, account_no=rec.account_number,
             account_type=rec.account_type, sort_code=rec.sort_code, is_cashcard=rec.is_cashcard,
             amount=rec.pay_amount or None, email=rec.email, currency_code=rec.currency_code,
         )

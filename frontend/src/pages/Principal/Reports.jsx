@@ -21,7 +21,7 @@ export default function PrincipalReports() {
       portalId="principal"
       pageTitle="Reports"
       title="Reports"
-      subtitle="A consolidated view across academics, finance, and staff — see each area's own Reports page for the full breakdown."
+      subtitle="A consolidated view across academics, finance, and staff. See each area's own Reports page for the full breakdown."
       loading={loading}
       error={error}
       onReload={reload}
@@ -35,9 +35,9 @@ export default function PrincipalReports() {
               <Link to="/principal/performance" className="font-label-sm text-label-sm text-primary hover:underline">Full Report →</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-md">
-              <StatCard icon="school" label="Total Students" value={academic?.total_students ?? '—'} />
-              <StatCard icon="event_available" label="Attendance Rate" value={academic?.attendance_rate !== null && academic?.attendance_rate !== undefined ? `${academic.attendance_rate}%` : '—'} />
-              <StatCard icon="quiz" label="Most Recent Exam" value={academic?.recent_exam?.name || '—'} />
+              <StatCard icon="school" label="Total Students" value={academic?.total_students ?? 'N/A'} />
+              <StatCard icon="event_available" label="Attendance Rate" value={academic?.attendance_rate !== null && academic?.attendance_rate !== undefined ? `${academic.attendance_rate}%` : 'N/A'} />
+              <StatCard icon="quiz" label="Most Recent Exam" value={academic?.recent_exam?.name || 'N/A'} />
             </div>
           </div>
 
@@ -47,9 +47,9 @@ export default function PrincipalReports() {
               <Link to="/principal/fee-reports" className="font-label-sm text-label-sm text-primary hover:underline">Full Report →</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-md">
-              <StatCard icon="payments" label="Fees Collected" value={finance ? `₦${Number(finance.total_collected).toLocaleString()}` : '—'} />
-              <StatCard icon="assignment_late" iconTone="error" label="Outstanding" value={finance ? `₦${Number(finance.outstanding).toLocaleString()}` : '—'} />
-              <StatCard icon="account_balance_wallet" iconTone="secondary" label="Net Position" value={finance ? `₦${Number(finance.net_position).toLocaleString()}` : '—'} />
+              <StatCard icon="payments" label="Fees Collected" value={finance ? `₦${Number(finance.total_collected).toLocaleString()}` : 'N/A'} />
+              <StatCard icon="assignment_late" iconTone="error" label="Outstanding" value={finance ? `₦${Number(finance.outstanding).toLocaleString()}` : 'N/A'} />
+              <StatCard icon="account_balance_wallet" iconTone="secondary" label="Net Position" value={finance ? `₦${Number(finance.net_position).toLocaleString()}` : 'N/A'} />
             </div>
           </div>
 

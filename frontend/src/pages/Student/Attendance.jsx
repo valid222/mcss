@@ -59,7 +59,7 @@ export default function StudentAttendance() {
                       <tr key={r.id} className="hover:bg-surface-container-low transition-colors">
                         <td className="px-lg py-4 font-body-md text-body-md text-on-surface">{r.date}</td>
                         <td className="px-lg py-4"><Badge tone={STATUS_TONE[r.status]}>{r.status}</Badge></td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{r.notes || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{r.notes || 'N/A'}</td>
                       </tr>
                     ))}
                   </tbody>

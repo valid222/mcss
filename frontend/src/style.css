@@ -96,16 +96,25 @@
   --font-body-md: "Archivo Narrow", sans-serif;
   --font-body-sm: "Archivo Narrow", sans-serif;
   --font-label-lg: Domine, serif;
-  --text-headline-lg: 32px;
-  --text-headline-md: 24px;
-  --text-headline-sm: 18px;
-  --text-body-lg: 18px;
-  --text-headline-lg-mobile: 28px;
-  --text-label-xs: 10px;
-  --text-label-sm: 12px;
-  --text-headline-xl: 48px;
-  --text-label-md: 14px;
-  --text-body-md: 16px;
+  /* rem, not px — Appearance settings' Base Font Size only touches the
+     root <html> font-size (see lib/colorTokens.js's applyTypographyOverrides);
+     a px value here is completely insulated from that, which is exactly why
+     the setting used to visibly do nothing. rem cascades from the root, so
+     it now actually scales the whole app's type, while resolving to these
+     exact same pixel sizes at the default 16px root (no visual change for
+     anyone who hasn't touched the setting). */
+  --text-headline-lg: 2rem;        /* 32px */
+  --text-headline-md: 1.5rem;      /* 24px */
+  --text-headline-sm: 1.125rem;    /* 18px */
+  --text-body-lg: 1.125rem;        /* 18px */
+  --text-headline-lg-mobile: 1.75rem; /* 28px */
+  --text-label-xs: 0.625rem;       /* 10px */
+  --text-label-sm: 0.75rem;        /* 12px */
+  --text-headline-xl: 3rem;        /* 48px */
+  --text-label-md: 0.875rem;       /* 14px */
+  --text-body-md: 1rem;            /* 16px */
+  --text-body-sm: 0.875rem;        /* 14px — token existed for font-body-sm but had no matching size */
+  --text-label-lg: 1rem;           /* 16px — token existed for font-label-lg but had no matching size */
   --radius: 1rem;
   --radius-sm: 0.5rem;
   --radius-md: 1.5rem;

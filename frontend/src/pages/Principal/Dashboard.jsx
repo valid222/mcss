@@ -16,7 +16,7 @@ export default function PrincipalDashboard() {
       portalId="principal"
       pageTitle="Principal Dashboard"
       title="Principal Dashboard"
-      subtitle={dash?.session ? `School-wide overview — ${dash.session}.` : 'School-wide overview.'}
+      subtitle={dash?.session ? `School-wide overview: ${dash.session}.` : 'School-wide overview.'}
       loading={loading}
       error={error}
       onReload={reload}

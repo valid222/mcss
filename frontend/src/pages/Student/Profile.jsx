@@ -16,7 +16,7 @@ function Field({ label, value }) {
   return (
     <div className="space-y-1">
       <p className="font-label-sm text-label-sm text-outline uppercase tracking-tight">{label}</p>
-      <p className="font-body-md text-body-md text-on-surface">{value || '—'}</p>
+      <p className="font-body-md text-body-md text-on-surface">{value || 'N/A'}</p>
     </div>
   );
 }
@@ -30,7 +30,7 @@ export default function StudentProfile() {
   return (
     <AppShell portalId="student" pageTitle="Profile" user={{ name: user?.full_name || 'Student' }}>
       <div className="space-y-lg sm:space-y-xl">
-        <PageHeader title="My Profile" subtitle="Your account and enrollment details. Contact the school office to correct anything below — the Additional Information section is yours to fill in." />
+        <PageHeader title="My Profile" subtitle="Your account and enrollment details. Contact the school office to correct anything below; the Additional Information section is yours to fill in." />
 
         {error && (
           <Card padding="lg" className="border border-error/30 bg-error-container/10">

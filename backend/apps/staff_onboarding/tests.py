@@ -107,14 +107,31 @@ class PublicConfigAndSubmitTests(StaffOnboardingTestBase):
         self.assertEqual(res.status_code, 400)
         self.assertIn("custom_field_values", res.json()["errors"])
 
-    def test_non_academic_submission_only_needs_name_and_role_title(self):
+    def test_non_academic_submission_requires_dynamic_required_fields_too(self):
+        """Non-academic staff used to skip the dynamic-required-fields check
+        entirely — meaning their NIN/Biodata/bank answers were silently
+        never required, and (see services.py) never saved either. They now
+        go through the exact same check as every other staff type."""
         res = self.client.post("/api/v1/staff-applications/submit", {
             "staff_type": "non_academic", "full_name": "Cleaner Person", "phone": "08033334444",
             "non_academic_role_title": "Cleaner",
         }, format="json")
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("custom_field_values", res.json()["errors"])
+
+    def test_non_academic_submission_succeeds_with_role_title_and_dynamic_fields(self):
+        res = self.client.post("/api/v1/staff-applications/submit", {
+            "staff_type": "non_academic", "full_name": "Cleaner Person", "phone": "08033334444",
+            "non_academic_role_title": "Cleaner",
+            "custom_field_values": [
+                {"field_id": str(self.nin_field.id), "value": "12345678901"},
+                {"field_id": str(self.qual_field.id), "value": "N/A"},
+            ],
+        }, format="json")
+        self.assertEqual(res.status_code, 201, res.json())
         application = StaffApplication.objects.get(id=res.json()["data"]["id"])
         self.assertEqual(application.status, StaffApplication.Status.SUBMITTED)
+        self.assertEqual(application.field_values.count(), 2)
 
     def test_teacher_submission_with_claims_and_dynamic_fields_succeeds(self):
         res = self.client.post("/api/v1/staff-applications/submit", {
@@ -329,6 +346,44 @@ class NonAcademicApprovalTests(StaffOnboardingTestBase):
         self.assertEqual(payout.full_name, "Cleaner Person")
         self.assertEqual(payout.title, "Cleaner")
         self.assertFalse(User.objects.filter(full_name="Cleaner Person").exists())
+
+    def test_bank_fields_land_on_the_payout_record_and_flow_into_the_export(self):
+        """The applicant's bank answers (account_number/account_type/
+        sort_code/...) are real columns on NonAcademicStaffPayout, not
+        CustomFieldValue rows — that's what the payout sheet export reads
+        directly. Confirms they actually get copied across at approval."""
+        acct_field = CustomField.objects.create(entity="staff", key="account_number", label="Account No.")
+        type_field = CustomField.objects.create(entity="staff", key="account_type", label="Account Type")
+        sort_field = CustomField.objects.create(entity="staff", key="sort_code", label="CBN Sort Code")
+        application = StaffApplication.objects.create(
+            staff_type=StaffApplication.StaffType.NON_ACADEMIC,
+            full_name="Bank Cleaner", phone="08033334444", non_academic_role_title="Cleaner",
+        )
+        StaffApplicationFieldValue.objects.create(application=application, field=acct_field, value="0123456789")
+        StaffApplicationFieldValue.objects.create(application=application, field=type_field, value="Savings")
+        StaffApplicationFieldValue.objects.create(application=application, field=sort_field, value="058")
+
+        services.approve_staff_application(application, self.hr_user)
+        payout = application.created_payout
+        self.assertEqual(payout.account_number, "0123456789")
+        self.assertEqual(payout.account_type, "Savings")
+        self.assertEqual(payout.sort_code, "058")
+
+    def test_non_bank_dynamic_fields_are_saved_as_custom_field_values_on_the_payout(self):
+        """Biodata-style answers (address, LGA, NIN, ...) have no column on
+        NonAcademicStaffPayout — they're saved as real CustomFieldValue rows
+        keyed by the payout's own id, the same mechanism regular staff use
+        keyed by their User id."""
+        application = StaffApplication.objects.create(
+            staff_type=StaffApplication.StaffType.NON_ACADEMIC,
+            full_name="Bio Cleaner", phone="08033334444", non_academic_role_title="Cleaner",
+        )
+        StaffApplicationFieldValue.objects.create(application=application, field=self.nin_field, value="98765432109")
+
+        services.approve_staff_application(application, self.hr_user)
+        payout = application.created_payout
+        saved = CustomFieldValue.objects.get(field=self.nin_field, entity_id=payout.id)
+        self.assertEqual(saved.value, "98765432109")
 
 
 class RejectionTests(StaffOnboardingTestBase):

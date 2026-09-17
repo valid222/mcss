@@ -15,6 +15,38 @@ def get_min_bank_size():
         return 150
 
 
+# One bullet per line — the student-facing "Before You Start" screen splits
+# on newlines to render them as a list, same shape the hardcoded version it
+# replaced always had. Kept as plain freeform text (not a JSON list) so the
+# Exam Officer edits it in one plain textarea, no repeater UI needed.
+_DEFAULT_INSTRUCTIONS = (
+    "You have a fixed time once you press Start. The clock does not pause.\n"
+    "Your answers are saved automatically as you pick them.\n"
+    "Switching to another tab, app, or window submits your exam immediately with a penalty. There is no warning once you start.\n"
+    "You get one attempt. Only your invigilator can grant a reset for a genuine technical failure.\n"
+    "Submit manually with the Submit button once you've answered everything."
+)
+_DEFAULT_COMPLETION_MESSAGE = (
+    "Your answers have been recorded. You may now close this window and return your device to the invigilator."
+)
+
+
+def get_exam_instructions():
+    from apps.settings_app.models import SystemSetting
+
+    setting = SystemSetting.objects.filter(key="exam.instructions").first()
+    value = setting.value if setting else None
+    return value if value else _DEFAULT_INSTRUCTIONS
+
+
+def get_exam_completion_message():
+    from apps.settings_app.models import SystemSetting
+
+    setting = SystemSetting.objects.filter(key="exam.completion_message").first()
+    value = setting.value if setting else None
+    return value if value else _DEFAULT_COMPLETION_MESSAGE
+
+
 def can_approve_bank(bank):
     count = bank.questions.count()
     minimum = get_min_bank_size()

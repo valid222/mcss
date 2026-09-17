@@ -67,7 +67,7 @@ export default function SuperAdminAttendance() {
 
           {!currentTerm && (
             <p className="font-label-md text-label-md text-error bg-error-container/20 border border-error/20 rounded-lg px-md py-sm mb-md">
-              No current term is set — set one in Administration → Academic Session & Terms first.
+              No current term is set. Set one in Administration → Academic Session & Terms first.
             </p>
           )}
 

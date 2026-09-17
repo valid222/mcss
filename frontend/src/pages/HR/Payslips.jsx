@@ -20,7 +20,7 @@ export default function HRPayslips() {
       portalId="hr"
       pageTitle="Payslips"
       title="Payslips"
-      subtitle="Every payslip generated, across every payroll run — set up salaries and run a new month from Payroll."
+      subtitle="Every payslip generated, across every payroll run. Set up salaries and run a new month from Payroll."
       loading={loading}
       error={error}
       onReload={reload}

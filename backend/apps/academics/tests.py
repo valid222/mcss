@@ -702,14 +702,24 @@ class ReportCardPhotoLogoBrandingTests(ResultsApprovalGateTestBase):
         self.review(submit_res.json()["data"]["id"], "approved")
         self.publish()
         self.client.force_authenticate(self.student.user)
-        with patch("apps.academics.views.pisa.CreatePDF") as mock_create:
+        import requests as requests_lib
+
+        with patch("apps.academics.views.pisa.CreatePDF") as mock_create, \
+                patch("common.pdf.requests.get", side_effect=requests_lib.ConnectionError("no network in tests")):
+            # common.pdf's image-caching fetch (see ReceiptPDFOverflowTests
+            # and CachedImageFetchTests) has nothing to reach in a test
+            # environment — mocked to fail deterministically rather than
+            # relying on "testserver" happening to fail DNS resolution
+            # quickly, which is what it fell back to before this was added.
+            # A failed fetch falls back to the plain URL either way, which
+            # is exactly what these tests assert on.
             mock_create.return_value.err = 0
             self.client.get(f"/api/v1/academics/exams/{self.exam.id}/report-card/{self.student.id}/pdf")
         return mock_create.call_args[0][0]
 
-    def test_photo_cell_comes_before_logo_cell_in_the_header(self):
+    def test_logo_cell_comes_before_photo_cell_in_the_header(self):
         html = self._rendered_html()
-        self.assertLess(html.index('class="photo-cell"'), html.index('class="logo-cell"'))
+        self.assertLess(html.index('class="logo-cell"'), html.index('class="photo-cell"'))
 
     def test_missing_avatar_falls_back_to_a_real_placeholder_image(self):
         self.assertFalse(self.student.user.avatar)

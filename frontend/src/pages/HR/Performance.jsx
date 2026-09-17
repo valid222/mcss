@@ -5,8 +5,8 @@ const COLUMNS = [
   { key: 'staff_name', label: 'Staff' },
   { key: 'period', label: 'Period' },
   { key: 'rating', label: 'Rating', render: (item) => `${item.rating} / 5` },
-  { key: 'reviewer_name', label: 'Reviewed By', render: (item) => item.reviewer_name || '—' },
-  { key: 'comments', label: 'Comments', render: (item) => item.comments || '—' },
+  { key: 'reviewer_name', label: 'Reviewed By', render: (item) => item.reviewer_name || 'N/A' },
+  { key: 'comments', label: 'Comments', render: (item) => item.comments || 'N/A' },
 ];
 
 function buildFields(extra) {

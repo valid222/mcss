@@ -5,7 +5,7 @@ const COLUMNS = [
   { key: 'description', label: 'Description' },
   { key: 'amount', label: 'Amount' },
   { key: 'date', label: 'Date' },
-  { key: 'received_from', label: 'Received From', render: (item) => item.received_from || '—' },
+  { key: 'received_from', label: 'Received From', render: (item) => item.received_from || 'N/A' },
 ];
 
 const FORM_FIELDS = [
@@ -22,7 +22,7 @@ export default function BursaryIncome() {
       portalId="bursary"
       pageTitle="Income"
       title="Income"
-      subtitle="Non-fee revenue — donations, rentals, grants, and other income."
+      subtitle="Non-fee revenue: donations, rentals, grants, and other income."
       endpoint="/finance/income"
       itemLabel="Income"
       columns={COLUMNS}

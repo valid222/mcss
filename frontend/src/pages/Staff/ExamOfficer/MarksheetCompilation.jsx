@@ -134,7 +134,7 @@ export default function ExamOfficerMarksheet() {
               </Card>
               <Card padding="lg">
                 <p className="font-label-sm text-label-sm text-on-surface-variant uppercase mb-xs">Class Average</p>
-                <p className="font-headline-md text-headline-md">{stats.class_average === null ? '—' : `${stats.class_average}%`}</p>
+                <p className="font-headline-md text-headline-md">{stats.class_average === null ? 'N/A' : `${stats.class_average}%`}</p>
               </Card>
             </div>
 

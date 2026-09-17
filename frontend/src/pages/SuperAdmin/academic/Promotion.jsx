@@ -164,7 +164,7 @@ export default function SuperAdminPromotion() {
                         <tr key={r.id}>
                           <td className="px-lg py-2 font-body-md text-body-md text-on-surface">{r.student_name}</td>
                           <td className="px-lg py-2"><Badge tone={OUTCOME_TONE[r.outcome] || 'secondary'}>{r.outcome}</Badge></td>
-                          <td className="px-lg py-2 font-label-sm text-label-sm text-on-surface-variant">{r.to_class_arm_label || '—'}</td>
+                          <td className="px-lg py-2 font-label-sm text-label-sm text-on-surface-variant">{r.to_class_arm_label || 'N/A'}</td>
                         </tr>
                       ))}
                     </tbody>

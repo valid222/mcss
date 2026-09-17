@@ -102,8 +102,8 @@ export default function ParentSettings() {
                         <td className="px-lg py-4 font-body-md text-body-md text-on-surface">
                           {s.user_agent?.slice(0, 60) || 'Unknown device'} {s.is_current && <span className="text-secondary font-label-sm">(this device)</span>}
                         </td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{s.ip_address || '—'}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{s.last_used_at ? new Date(s.last_used_at).toLocaleString() : '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{s.ip_address || 'N/A'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{s.last_used_at ? new Date(s.last_used_at).toLocaleString() : 'N/A'}</td>
                         <td className="px-lg py-4 text-right">
                           {!s.is_current && (
                             <Button variant="secondary" size="sm" disabled={revokingId === s.id} onClick={() => revokeSession(s.id)}>

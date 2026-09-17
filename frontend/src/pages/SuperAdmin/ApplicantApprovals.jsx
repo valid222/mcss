@@ -64,7 +64,7 @@ function DetailDrawer({ application, onClose, reload }) {
         {application.student_identifier && (
           <div className="bg-secondary-container/30 border border-secondary/20 rounded-lg p-md space-y-xs">
             <p className="font-label-md text-label-md font-bold text-secondary">Provisioned</p>
-            <p className="font-label-sm text-label-sm text-on-surface">Student ID: <span className="font-bold">{application.student_identifier || '—'}</span></p>
+            <p className="font-label-sm text-label-sm text-on-surface">Student ID: <span className="font-bold">{application.student_identifier || 'N/A'}</span></p>
             <p className="font-label-sm text-label-sm text-on-surface">Registration No.: <span className="font-bold">{application.registration_number || 'Pending fee payment'}</span></p>
           </div>
         )}
@@ -72,56 +72,56 @@ function DetailDrawer({ application, onClose, reload }) {
         <div className="grid grid-cols-2 gap-md">
           <div>
             <p className="font-label-sm text-label-sm text-on-surface-variant">Date of Birth</p>
-            <p className="font-label-md text-label-md">{application.date_of_birth || '—'}</p>
+            <p className="font-label-md text-label-md">{application.date_of_birth || 'N/A'}</p>
           </div>
           <div>
             <p className="font-label-sm text-label-sm text-on-surface-variant">Gender</p>
-            <p className="font-label-md text-label-md capitalize">{application.gender || '—'}</p>
+            <p className="font-label-md text-label-md capitalize">{application.gender || 'N/A'}</p>
           </div>
           <div>
             <p className="font-label-sm text-label-sm text-on-surface-variant">Applying For</p>
-            <p className="font-label-md text-label-md">{application.class_applying_for_name || '—'}</p>
+            <p className="font-label-md text-label-md">{application.class_applying_for_name || 'N/A'}</p>
           </div>
           <div>
             <p className="font-label-sm text-label-sm text-on-surface-variant">Present Class</p>
-            <p className="font-label-md text-label-md">{application.present_class || '—'}</p>
+            <p className="font-label-md text-label-md">{application.present_class || 'N/A'}</p>
           </div>
           <div>
             <p className="font-label-sm text-label-sm text-on-surface-variant">Religion</p>
-            <p className="font-label-md text-label-md capitalize">{application.religion === 'others' ? application.religion_other : application.religion || '—'}</p>
+            <p className="font-label-md text-label-md capitalize">{application.religion === 'others' ? application.religion_other : application.religion || 'N/A'}</p>
           </div>
           <div>
             <p className="font-label-sm text-label-sm text-on-surface-variant">Nationality / State</p>
-            <p className="font-label-md text-label-md">{application.nationality || '—'} / {application.state_of_origin || '—'}</p>
+            <p className="font-label-md text-label-md">{application.nationality || 'N/A'} / {application.state_of_origin || 'N/A'}</p>
           </div>
           <div className="col-span-2">
             <p className="font-label-sm text-label-sm text-on-surface-variant">Contact</p>
-            <p className="font-label-md text-label-md">{application.email || '—'} · {application.phone || '—'}</p>
+            <p className="font-label-md text-label-md">{application.email || 'N/A'} · {application.phone || 'N/A'}</p>
           </div>
           <div className="col-span-2">
             <p className="font-label-sm text-label-sm text-on-surface-variant">Address</p>
-            <p className="font-label-md text-label-md">{application.address || '—'}</p>
+            <p className="font-label-md text-label-md">{application.address || 'N/A'}</p>
           </div>
         </div>
 
         {application.has_guardian && (
           <div className="border-t border-outline/10 pt-md">
             <h4 className="font-label-md text-label-md font-bold text-primary mb-sm">Guardian</h4>
-            <p className="font-label-md text-label-md">{application.guardian_name || '—'}</p>
-            <p className="font-label-sm text-label-sm text-on-surface-variant">{application.guardian_phone || '—'} · {application.guardian_email || '—'}</p>
+            <p className="font-label-md text-label-md">{application.guardian_name || 'N/A'}</p>
+            <p className="font-label-sm text-label-sm text-on-surface-variant">{application.guardian_phone || 'N/A'} · {application.guardian_email || 'N/A'}</p>
           </div>
         )}
 
         <div className="border-t border-outline/10 pt-md grid grid-cols-2 gap-md">
           <div>
             <h4 className="font-label-md text-label-md font-bold text-primary mb-sm">Father</h4>
-            <p className="font-label-sm text-label-sm">{application.father_name || '—'}</p>
-            <p className="font-label-sm text-label-sm text-on-surface-variant">{application.father_phone || '—'}</p>
+            <p className="font-label-sm text-label-sm">{application.father_name || 'N/A'}</p>
+            <p className="font-label-sm text-label-sm text-on-surface-variant">{application.father_phone || 'N/A'}</p>
           </div>
           <div>
             <h4 className="font-label-md text-label-md font-bold text-primary mb-sm">Mother</h4>
-            <p className="font-label-sm text-label-sm">{application.mother_name || '—'}</p>
-            <p className="font-label-sm text-label-sm text-on-surface-variant">{application.mother_phone || '—'}</p>
+            <p className="font-label-sm text-label-sm">{application.mother_name || 'N/A'}</p>
+            <p className="font-label-sm text-label-sm text-on-surface-variant">{application.mother_phone || 'N/A'}</p>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ function DetailDrawer({ application, onClose, reload }) {
               {application.field_values.map((f) => (
                 <div key={f.id}>
                   <p className="font-label-sm text-label-sm text-on-surface-variant">{f.field_label}</p>
-                  <p className="font-label-md text-label-md">{f.value || '—'}</p>
+                  <p className="font-label-md text-label-md">{f.value || 'N/A'}</p>
                 </div>
               ))}
             </div>
@@ -163,7 +163,7 @@ function DetailDrawer({ application, onClose, reload }) {
         {!isSecondary ? (
           <div className="bg-surface-container p-md rounded-lg">
             <p className="font-label-sm text-label-sm text-on-surface-variant">
-              Primary applications are view-only for now — there is no downstream enrollment workflow for this level yet.
+              Primary applications are view-only for now; there is no downstream enrollment workflow for this level yet.
             </p>
           </div>
         ) : (
@@ -237,7 +237,7 @@ export default function SuperAdminApplicantApprovals() {
                       <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{a.full_name}</td>
                       <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{a.reference_number}</td>
                       <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant capitalize">{a.level}</td>
-                      <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{a.class_applying_for_name || '—'}</td>
+                      <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{a.class_applying_for_name || 'N/A'}</td>
                       <td className="px-lg py-4"><Badge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</Badge></td>
                       <td className="px-lg py-4 text-right">
                         <button type="button" onClick={() => setSelected(a)} className="font-label-sm text-label-sm text-primary hover:underline">Review</button>

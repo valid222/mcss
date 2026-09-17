@@ -189,7 +189,7 @@ export default function TeacherCbeQuestions() {
   return (
     <AppShell portalId="teacher" pageTitle="CBE Questions" user={{ name: user?.full_name || 'Teacher' }}>
       <div className="space-y-lg sm:space-y-xl">
-        <PageHeader title="CBE Questions" subtitle="Build your subject's computer-based exam question bank — the Exam Officer approves it once it clears the minimum size." />
+        <PageHeader title="CBE Questions" subtitle="Build your subject's computer-based exam question bank. The Exam Officer approves it once it clears the minimum size." />
 
         {error && (
           <Card padding="lg" className="border border-error/30 bg-error-container/10">
@@ -236,7 +236,7 @@ export default function TeacherCbeQuestions() {
                 <div>
                   <p className="font-label-sm text-label-sm text-on-surface-variant">{questions.length} question(s) in this bank</p>
                   {bank?.is_approved && (
-                    <p className="font-label-sm text-label-sm text-tertiary mt-1">Approved by {bank.approved_by_name} — adding or editing a question revokes this approval.</p>
+                    <p className="font-label-sm text-label-sm text-tertiary mt-1">Approved by {bank.approved_by_name}. Adding or editing a question revokes this approval.</p>
                   )}
                 </div>
                 <Badge tone={bank?.is_approved ? 'success' : 'secondary'}>{bank?.is_approved ? 'Approved' : 'Pending Approval'}</Badge>
@@ -278,7 +278,7 @@ export default function TeacherCbeQuestions() {
             </Card>
 
             {questions.length === 0 ? (
-              <Card padding="lg"><EmptyState icon="quiz" text="No questions yet — paste some above to get started." /></Card>
+              <Card padding="lg"><EmptyState icon="quiz" text="No questions yet. Paste some above to get started." /></Card>
             ) : (
               <div className="space-y-md">
                 {questions.map((q, i) => (

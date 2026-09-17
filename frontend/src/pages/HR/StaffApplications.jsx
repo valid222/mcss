@@ -54,7 +54,7 @@ function RegistrationToggle() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } else {
-      setError('Could not copy the link — copy it from the address bar instead.');
+      setError('Could not copy the link. Copy it from the address bar instead.');
     }
   };
 
@@ -64,7 +64,7 @@ function RegistrationToggle() {
         <div>
           <h3 className="font-headline-md text-headline-sm text-on-surface">Staff Registration Link</h3>
           <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-            While open, anyone with the link can submit a request to create their own staff account — nothing goes
+            While open, anyone with the link can submit a request to create their own staff account. Nothing goes
             live until you or Super Admin approve it. Closing it stops new submissions immediately.
           </p>
           {error && <p className="font-label-sm text-label-sm text-error mt-xs">{error}</p>}
@@ -146,18 +146,18 @@ function DetailDrawer({ application, onClose, reload }) {
         <div className="grid grid-cols-2 gap-md">
           <div>
             <p className="font-label-sm text-label-sm text-on-surface-variant">Contact</p>
-            <p className="font-label-md text-label-md">{application.email || '—'} · {application.phone || '—'}</p>
+            <p className="font-label-md text-label-md">{application.email || 'N/A'} · {application.phone || 'N/A'}</p>
           </div>
           {!isNonAcademic && (
             <div>
               <p className="font-label-sm text-label-sm text-on-surface-variant">Sex / Date of Birth</p>
-              <p className="font-label-md text-label-md capitalize">{application.sex || '—'} · {application.date_of_birth || '—'}</p>
+              <p className="font-label-md text-label-md capitalize">{application.sex || 'N/A'} · {application.date_of_birth || 'N/A'}</p>
             </div>
           )}
           {isNonAcademic && (
             <div>
               <p className="font-label-sm text-label-sm text-on-surface-variant">Role</p>
-              <p className="font-label-md text-label-md">{application.non_academic_role_title || '—'}</p>
+              <p className="font-label-md text-label-md">{application.non_academic_role_title || 'N/A'}</p>
             </div>
           )}
         </div>
@@ -169,7 +169,7 @@ function DetailDrawer({ application, onClose, reload }) {
               {application.field_values.map((f) => (
                 <div key={f.id}>
                   <p className="font-label-sm text-label-sm text-on-surface-variant">{f.field_label}</p>
-                  <p className="font-label-md text-label-md">{f.value || '—'}</p>
+                  <p className="font-label-md text-label-md">{f.value || 'N/A'}</p>
                 </div>
               ))}
             </div>
@@ -184,7 +184,7 @@ function DetailDrawer({ application, onClose, reload }) {
             ) : (
               <ul className="space-y-xs">
                 {application.subject_claims.map((c) => (
-                  <li key={c.id} className="font-label-sm text-label-sm">{c.subject_name} — {c.class_arm_name}</li>
+                  <li key={c.id} className="font-label-sm text-label-sm">{c.subject_name} · {c.class_arm_name}</li>
                 ))}
               </ul>
             )}
@@ -274,7 +274,7 @@ export default function HRStaffApplications() {
                     <tr key={a.id} className="hover:bg-surface-container-low transition-colors">
                       <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{a.full_name}</td>
                       <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{a.staff_type_label}</td>
-                      <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{a.email || a.phone || '—'}</td>
+                      <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{a.email || a.phone || 'N/A'}</td>
                       <td className="px-lg py-4"><Badge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</Badge></td>
                       <td className="px-lg py-4 text-right">
                         <button type="button" onClick={() => setSelected(a)} className="font-label-sm text-label-sm text-primary hover:underline">Review</button>

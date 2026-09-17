@@ -5,7 +5,7 @@ export default function SuperAdminUserManagement() {
     <UserManagementPage
       pageTitle="User Management"
       title="User Management"
-      subtitle="All user accounts across the platform — staff, students, parents, and applicants."
+      subtitle="All user accounts across the platform: staff, students, parents, and applicants."
       userTypeFilter={null}
       emptyIcon="group"
     />

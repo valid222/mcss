@@ -15,19 +15,27 @@ const ENDPOINTS = { settings: '/exam/settings' };
 export default function ExamOfficerSettings() {
   const { data, loading, error, reload } = useDashboardData(ENDPOINTS);
   const [minBankSize, setMinBankSize] = useState(null);
+  const [instructions, setInstructions] = useState(null);
+  const [completionMessage, setCompletionMessage] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveMessage, setSaveMessage] = useState('');
 
   const value = minBankSize ?? (data?.settings ? String(data.settings.min_bank_size) : '');
+  const instructionsValue = instructions ?? data?.settings?.instructions ?? '';
+  const completionValue = completionMessage ?? data?.settings?.completion_message ?? '';
 
   const handleSave = async () => {
     setSaving(true);
     setSaveError('');
     setSaveMessage('');
     try {
-      const result = await api.post('/exam/settings', { min_bank_size: value });
+      const result = await api.post('/exam/settings', {
+        min_bank_size: value, instructions: instructionsValue, completion_message: completionValue,
+      });
       setMinBankSize(String(result.min_bank_size));
+      setInstructions(result.instructions);
+      setCompletionMessage(result.completion_message);
       setSaveMessage('Exam settings saved.');
     } catch (err) {
       setSaveError(err instanceof ApiError ? err.message : 'Could not save exam settings.');
@@ -48,7 +56,7 @@ export default function ExamOfficerSettings() {
       skeletonCount={1}
     >
       {data && (
-        <Card padding="lg" className="max-w-lg">
+        <Card padding="lg" className="max-w-2xl">
           <div className="space-y-md">
             <div>
               <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="minBankSize">
@@ -64,6 +72,38 @@ export default function ExamOfficerSettings() {
                 value={value}
                 onChange={(e) => setMinBankSize(e.target.value)}
                 className="mcss-field px-md w-40"
+              />
+            </div>
+
+            <div>
+              <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="examInstructions">
+                Exam Instructions
+              </label>
+              <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 mb-sm">
+                Shown to students on the "Before You Start" screen, one rule per line.
+              </p>
+              <textarea
+                id="examInstructions"
+                rows={6}
+                value={instructionsValue}
+                onChange={(e) => setInstructions(e.target.value)}
+                className="mcss-field px-md py-sm w-full resize-y"
+              />
+            </div>
+
+            <div>
+              <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="examCompletionMessage">
+                Exam Success/Completion Information
+              </label>
+              <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 mb-sm">
+                Shown to students once they've submitted their exam.
+              </p>
+              <textarea
+                id="examCompletionMessage"
+                rows={3}
+                value={completionValue}
+                onChange={(e) => setCompletionMessage(e.target.value)}
+                className="mcss-field px-md py-sm w-full resize-y"
               />
             </div>
             {saveError && <p className="font-label-md text-label-md text-error bg-error-container/20 border border-error/20 rounded-lg px-md py-sm">{saveError}</p>}

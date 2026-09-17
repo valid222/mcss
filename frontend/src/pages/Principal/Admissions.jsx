@@ -101,7 +101,7 @@ export default function PrincipalAdmissions() {
                       <tr key={app.id} className="hover:bg-surface-container-low transition-colors">
                         <td className="px-lg py-4 font-body-md text-body-md text-on-surface">{app.reference_number}</td>
                         <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{app.full_name}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{app.class_applying_for_name || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{app.class_applying_for_name || 'N/A'}</td>
                         <td className="px-lg py-4"><Badge tone={STATUS_TONE[app.status] || 'secondary'}>{app.status}</Badge></td>
                         <td className="px-lg py-4 text-right">
                           <button type="button" onClick={() => openApplication(app)} className="font-label-sm text-label-sm text-primary hover:underline">Review</button>
@@ -116,15 +116,15 @@ export default function PrincipalAdmissions() {
         </div>
       )}
 
-      <Drawer open={!!selected} onClose={() => setSelected(null)} title={selected ? `Application — ${selected.full_name}` : ''}>
+      <Drawer open={!!selected} onClose={() => setSelected(null)} title={selected ? `Application: ${selected.full_name}` : ''}>
         {selected && (
           <div className="space-y-lg">
             {actionError && <p className="font-label-md text-label-md text-error bg-error-container/20 border border-error/20 rounded-lg px-md py-sm">{actionError}</p>}
             <div className="space-y-xs">
               <p className="font-label-sm text-label-sm text-on-surface-variant">Reference: {selected.reference_number}</p>
-              <p className="font-label-sm text-label-sm text-on-surface-variant">Class applying for: {selected.class_applying_for_name || '—'}</p>
-              <p className="font-label-sm text-label-sm text-on-surface-variant">Previous school: {selected.previous_school || '—'}</p>
-              <p className="font-label-sm text-label-sm text-on-surface-variant">Guardian: {selected.guardian_name || '—'} · {selected.guardian_phone || selected.guardian_email || '—'}</p>
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Class applying for: {selected.class_applying_for_name || 'N/A'}</p>
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Previous school: {selected.previous_school || 'N/A'}</p>
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Guardian: {selected.guardian_name || 'N/A'} · {selected.guardian_phone || selected.guardian_email || 'N/A'}</p>
               <Badge tone={STATUS_TONE[selected.status] || 'secondary'}>{selected.status}</Badge>
             </div>
             <div>

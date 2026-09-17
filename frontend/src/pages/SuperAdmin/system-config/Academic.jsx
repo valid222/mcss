@@ -106,7 +106,7 @@ function GradeScalesCard({ grades, reload }) {
                   <td className="px-md py-2 font-label-md text-label-md font-bold">{g.name}</td>
                   <td className="px-md py-2 font-label-sm text-label-sm">{g.min_score}–{g.max_score}</td>
                   <td className="px-md py-2 font-label-sm text-label-sm">{g.remark}</td>
-                  <td className="px-md py-2 font-label-sm text-label-sm">{g.grade_point ?? '—'}</td>
+                  <td className="px-md py-2 font-label-sm text-label-sm">{g.grade_point ?? 'N/A'}</td>
                   <td className="px-md py-2 text-right whitespace-nowrap">
                     <button type="button" onClick={() => openEdit(g)} className="p-1 text-outline hover:text-primary"><span className="material-symbols-outlined text-[18px]">edit</span></button>
                     <button type="button" onClick={() => setDeleteTarget(g)} className="p-1 text-outline hover:text-error"><span className="material-symbols-outlined text-[18px]">delete</span></button>

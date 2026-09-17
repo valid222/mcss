@@ -12,7 +12,7 @@ export default function SuperAdminOperationsSummary() {
     <DashboardPageShell
       pageTitle="Operations Summary"
       title="Operations Summary"
-      subtitle="Inventory, library, hostel, and transport status — live from the database."
+      subtitle="Inventory, library, hostel, and transport status, live from the database."
       loading={loading}
       error={error}
       onReload={reload}

@@ -45,8 +45,8 @@ export default function BursaryPayments() {
       const result = await api.post('/finance/payments', { invoice: invoiceId, amount, method, reference, pending });
       setSuccessMessage(
         result.status === 'pending'
-          ? `Payment logged as pending — verify it from Payment Verification once confirmed.`
-          : `Payment recorded — receipt ${result.receipt_number}.`,
+          ? `Payment logged as pending. Verify it from Payment Verification once confirmed.`
+          : `Payment recorded, receipt ${result.receipt_number}.`,
       );
       setInvoiceId('');
       setAmount('');
@@ -71,7 +71,7 @@ export default function BursaryPayments() {
               <FormField
                 field={{
                   key: 'invoice', label: 'Invoice', type: 'select', required: true,
-                  options: outstandingInvoices.map((inv) => ({ value: inv.id, label: `${inv.student_name} — ${inv.description} (balance ${inv.balance})` })),
+                  options: outstandingInvoices.map((inv) => ({ value: inv.id, label: `${inv.student_name} · ${inv.description} (balance ${inv.balance})` })),
                 }}
                 value={invoiceId}
                 onChange={setInvoiceId}
@@ -84,7 +84,7 @@ export default function BursaryPayments() {
               <FormField field={{ key: 'reference', label: 'Reference (optional)', type: 'text' }} value={reference} onChange={setReference} />
               {method !== 'cash' && (
                 <FormField
-                  field={{ key: 'pending', label: "Not yet confirmed — log as pending and verify later from Payment Verification", type: 'checkbox' }}
+                  field={{ key: 'pending', label: "Not yet confirmed: log as pending and verify later from Payment Verification", type: 'checkbox' }}
                   value={pending}
                   onChange={setPending}
                 />

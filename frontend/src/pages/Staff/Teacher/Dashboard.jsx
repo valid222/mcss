@@ -87,7 +87,7 @@ export default function TeacherDashboard() {
                       <div className="space-y-xs">
                         {dash.upcoming_assignments.map((a) => (
                           <div key={a.id} className="flex items-center justify-between gap-md">
-                            <span className="font-body-sm text-body-sm text-on-surface">{a.title} — {a.class_arm_label}</span>
+                            <span className="font-body-sm text-body-sm text-on-surface">{a.title} · {a.class_arm_label}</span>
                             <span className="font-label-sm text-label-sm text-primary whitespace-nowrap">Due {a.due_date}</span>
                           </div>
                         ))}

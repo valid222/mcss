@@ -35,7 +35,7 @@ function ChecklistCard({ slot, ready, onToggle }) {
       <label className="w-full border-2 border-dashed border-outline/20 rounded-lg p-lg flex items-center justify-center gap-md cursor-pointer hover:bg-surface-container-low transition-all">
         <input className="w-5 h-5 rounded border-outline text-primary focus:ring-primary" type="checkbox" checked={!!ready} onChange={() => onToggle(slot.key)} />
         <p className="font-label-md text-label-md text-on-surface-variant text-center">
-          {ready ? 'I have this document ready to bring in or send to admissions' : 'Mark as ready — you\'ll submit the physical/scanned copy to the admissions office'}
+          {ready ? 'I have this document ready to bring in or send to admissions' : 'Mark as ready: you\'ll submit the physical/scanned copy to the admissions office'}
         </p>
       </label>
     </div>

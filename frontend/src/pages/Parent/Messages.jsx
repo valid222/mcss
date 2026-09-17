@@ -36,7 +36,7 @@ export default function ParentMessages() {
       <div className="space-y-lg sm:space-y-xl">
         <PageHeader
           title="Teacher Communication"
-          subtitle="Notices sent to you by the school — attendance, results, payments, and announcements."
+          subtitle="Notices sent to you by the school: attendance, results, payments, and announcements."
           actions={notifications.some((n) => !n.is_read) && (
             <Button variant="secondary" size="sm" onClick={markAllRead} disabled={marking}>Mark All Read</Button>
           )}

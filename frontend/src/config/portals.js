@@ -389,3 +389,39 @@ export function getPortal(portalId) {
   }
   return portal;
 }
+
+// Deliberately NOT "communication" — in this app's nav config that key
+// always names a broadcast/compose tool (HR, Principal, Bursary,
+// Administration's "Communication"), never the signed-in user's own
+// notification inbox. Matching it would send those portals' bell to a
+// page for SENDING messages, not reading their own — worse than leaving
+// it inert. "message(s)"/"notification(s)" are the only keys this
+// codebase actually uses for a real per-user inbox (Student/Parent/
+// Teacher Messages, Super Admin's Notifications).
+const NOTIFICATIONS_KEY_PATTERN = /message|notification/i;
+
+function findNotificationsPath(items) {
+  for (const item of items || []) {
+    if (item.path && NOTIFICATIONS_KEY_PATTERN.test(item.key)) return item.path;
+    if (item.children) {
+      const found = findNotificationsPath(item.children);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+/** Where this portal's own existing notification bell should send the
+ * user — whichever nav item already serves as its Messages/Notifications
+ * inbox (matched by key, not hardcoded per portal, so a new portal's own
+ * equivalent page is picked up automatically). Returns null for portals
+ * with no personal inbox page of their own yet (admin, classTeacher,
+ * examOfficer, libraryAttendant have no such page at all; HR, Principal,
+ * and Bursary only have a "Communication" broadcast/compose tool, which
+ * isn't the same thing) — the bell stays inert there rather than routing
+ * to the wrong page. */
+export function getNotificationsPath(portalId) {
+  const portal = portals[portalId];
+  if (!portal) return null;
+  return findNotificationsPath(portal.sidebarNav) || findNotificationsPath(portal.bottomNav);
+}

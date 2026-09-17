@@ -196,9 +196,9 @@ export default function SuperAdminStudents() {
                     {students.map((student) => (
                       <tr key={student.id} className="hover:bg-surface-container-low transition-colors">
                         <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{student.full_name}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{student.email || student.identifier || '—'}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{student.class_arm_label || '—'}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{student.guardian_name || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{student.email || student.identifier || 'N/A'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{student.class_arm_label || 'N/A'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{student.guardian_name || 'N/A'}</td>
                         <td className="px-lg py-4">
                           <Badge tone={STATUS_TONE[student.status] || 'secondary'}>{student.status}</Badge>
                         </td>
@@ -278,7 +278,7 @@ export default function SuperAdminStudents() {
         <ConfirmDialog
           open
           title="Student Enrolled"
-          message={`Temporary password for ${enrollResult.full_name}: ${enrollResult.temporary_password} — share this with the family securely; it won't be shown again.`}
+          message={`Temporary password for ${enrollResult.full_name}: ${enrollResult.temporary_password} , share this with the family securely; it won't be shown again.`}
           confirmLabel="Done"
           danger={false}
           onConfirm={() => setEnrollResult(null)}

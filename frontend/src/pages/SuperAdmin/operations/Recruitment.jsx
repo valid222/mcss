@@ -70,7 +70,7 @@ function ApplicationsPanel({ posting }) {
               <div key={a.id} className="flex items-center justify-between gap-sm p-sm rounded-lg border border-outline/10">
                 <div>
                   <p className="font-label-md text-label-md font-bold text-on-surface">{a.applicant_name}</p>
-                  <p className="font-label-sm text-label-sm text-on-surface-variant">{a.email || a.phone || '—'}</p>
+                  <p className="font-label-sm text-label-sm text-on-surface-variant">{a.email || a.phone || 'N/A'}</p>
                 </div>
                 <select value={a.status} onChange={(e) => handleStatusChange(a.id, e.target.value)} className="mcss-field px-sm py-1 text-label-sm w-auto">
                   {APPLICATION_STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -82,7 +82,7 @@ function ApplicationsPanel({ posting }) {
         </div>
       )}
 
-      <Drawer open={addOpen} onClose={() => setAddOpen(false)} title={`Application — ${posting.title}`}>
+      <Drawer open={addOpen} onClose={() => setAddOpen(false)} title={`Application: ${posting.title}`}>
         <form onSubmit={handleAdd} className="space-y-lg">
           <FormField field={{ key: 'applicant_name', id: `app_name_${posting.id}`, label: 'Applicant Name', type: 'text', required: true }} value={values.applicant_name} onChange={(v) => setValues((p) => ({ ...p, applicant_name: v }))} />
           <FormField field={{ key: 'email', id: `app_email_${posting.id}`, label: 'Email', type: 'text' }} value={values.email} onChange={(v) => setValues((p) => ({ ...p, email: v }))} />

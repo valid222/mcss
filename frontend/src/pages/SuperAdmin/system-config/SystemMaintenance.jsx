@@ -62,7 +62,7 @@ export default function SuperAdminSystemMaintenance() {
 
             {values['system.maintenance_enabled'] && (
               <p className="font-label-md text-label-md text-on-error-container bg-error-container/40 border border-error/30 rounded-lg px-md py-sm max-w-3xl">
-                Maintenance mode is currently ON — everyone except Super Admins is blocked from the platform.
+                Maintenance mode is currently ON: everyone except Super Admins is blocked from the platform.
               </p>
             )}
 

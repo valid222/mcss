@@ -30,7 +30,7 @@ export default function PrincipalAttendance() {
       portalId="principal"
       pageTitle="Attendance"
       title="Attendance"
-      subtitle="School-wide attendance — read-only; taking attendance stays with class teachers."
+      subtitle="School-wide attendance, read-only; taking attendance stays with class teachers."
       loading={loading}
       error={error}
       onReload={reload}

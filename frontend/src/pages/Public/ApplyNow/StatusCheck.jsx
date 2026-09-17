@@ -94,7 +94,7 @@ export default function ApplyStatusCheck() {
                 </div>
                 <div>
                   <p className="font-label-sm text-label-sm text-outline mb-xs">Applying For</p>
-                  <p className="font-body-md text-body-md font-bold text-on-surface">{result.class_applying_for_name || '—'}</p>
+                  <p className="font-body-md text-body-md font-bold text-on-surface">{result.class_applying_for_name || 'N/A'}</p>
                 </div>
                 <div className="col-span-2">
                   <p className="font-label-sm text-label-sm text-outline mb-xs">Submitted</p>
@@ -107,7 +107,7 @@ export default function ApplyStatusCheck() {
                   <p className="font-label-sm text-label-sm text-outline mb-xs">Acceptance Fee</p>
                   {result.acceptance_fee ? (
                     <p className="font-body-md text-body-md font-bold text-on-surface capitalize">
-                      {result.acceptance_fee.status} — balance ₦{Number(result.acceptance_fee.balance).toLocaleString()}
+                      {result.acceptance_fee.status} (balance ₦{Number(result.acceptance_fee.balance).toLocaleString()})
                     </p>
                   ) : (
                     <p className="font-body-md text-body-md text-on-surface-variant">Not yet generated.</p>

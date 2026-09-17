@@ -13,7 +13,7 @@ function buildFields(extra) {
   const categoryOptions = (extra.categories || []).map((c) => ({ value: c.id, label: c.name }));
   const classOptions = (extra.classes || []).map((c) => ({ value: c.id, label: c.name }));
   const sessionOptions = (extra.sessions || []).map((s) => ({ value: s.id, label: s.name }));
-  const termOptions = (extra.sessions || []).flatMap((s) => s.terms.map((t) => ({ value: t.id, label: `${t.name} — ${s.name}` })));
+  const termOptions = (extra.sessions || []).flatMap((s) => s.terms.map((t) => ({ value: t.id, label: `${t.name} · ${s.name}` })));
   return [
     { key: 'category', label: 'Fee Category', type: 'select', required: true, options: categoryOptions },
     { key: 'school_class', label: 'Class (leave blank for all classes)', type: 'select', options: classOptions },

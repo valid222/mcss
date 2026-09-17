@@ -12,7 +12,7 @@ const LINKS = [
     to: '/super-admin/finance/receipts', label: 'Receipts',
   },
   {
-    icon: 'confirmation_number', title: 'Numbering Formats', description: 'Admission numbers, staff IDs, invoice/receipt/expense numbers — configurable per document type.',
+    icon: 'confirmation_number', title: 'Numbering Formats', description: 'Admission numbers, staff IDs, invoice/receipt/expense numbers, configurable per document type.',
     to: '/super-admin/settings?section=student-admission', label: 'Student & Admission Settings',
   },
   {

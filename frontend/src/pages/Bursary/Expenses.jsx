@@ -5,7 +5,7 @@ const COLUMNS = [
   { key: 'description', label: 'Description' },
   { key: 'amount', label: 'Amount' },
   { key: 'date', label: 'Date' },
-  { key: 'paid_to', label: 'Paid To', render: (item) => item.paid_to || '—' },
+  { key: 'paid_to', label: 'Paid To', render: (item) => item.paid_to || 'N/A' },
 ];
 
 const FORM_FIELDS = [

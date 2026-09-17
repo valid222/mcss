@@ -1,7 +1,3 @@
-import base64
-import functools
-from pathlib import Path
-
 from django.contrib.auth import get_user_model
 from django.db.models import Avg, Count, Q, Sum
 from django.http import HttpResponse
@@ -778,19 +774,6 @@ class PublishedExamsView(APIView):
         return success(data=ExamSerializer(qs, many=True).data)
 
 
-@functools.lru_cache(maxsize=1)
-def default_avatar_data_uri():
-    """A generic person-silhouette placeholder for a student with no
-    uploaded profile picture. Embedded as a base64 data: URI rather than a
-    served URL — xhtml2pdf resolves image sources at PDF-render time with no
-    guaranteed access to this server's own /static/ host, so a data URI is
-    the one option that always works, in dev and prod alike, with no extra
-    link_callback/static-resolution setup."""
-    path = Path(__file__).resolve().parent / "static" / "academics" / "default-avatar.png"
-    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
-    return f"data:image/png;base64,{encoded}"
-
-
 def _report_card_access_denied(request, exam, student):
     """Shared by ReportCardView and ReportCardPDFView: staff with
     results.view (including before publish, to proof it), or the owning
@@ -925,15 +908,16 @@ class ReportCardPDFView(APIView):
         contact_parts = [p for p in [profile.website if profile else "", profile.email if profile else "", profile.phone if profile else ""] if p]
 
         from apps.settings_app.models import SystemSetting
-        from common.pdf import absolute_media_url
+        from common.pdf import student_header
         appearance = {s.key: s.value for s in SystemSetting.objects.filter(group="appearance", is_secret=False)}
+        photo_url, logo_url = student_header(request, avatar=student.user.avatar, logo=profile.logo if profile else "")
 
         html = render_to_string("academics/report_card.html", {
             "primary_color": appearance.get("appearance.primary_color") or "#1a237e",
             "secondary_color": appearance.get("appearance.secondary_color") or "#37474f",
             "show_branding": appearance.get("appearance.report_branding_enabled", True),
-            "logo_url": absolute_media_url(request, profile.logo) if profile else "",
-            "photo_url": absolute_media_url(request, student.user.avatar) or default_avatar_data_uri(),
+            "logo_url": logo_url,
+            "photo_url": photo_url,
             "school_name": profile.name if profile else "School",
             "school_address": profile.address if profile else "",
             "school_contact": " | ".join(contact_parts),

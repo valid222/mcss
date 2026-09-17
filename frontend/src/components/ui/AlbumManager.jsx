@@ -132,7 +132,7 @@ export default function AlbumManager() {
       </div>
       {videoUrl && !isEmbeddableVideoUrl(videoUrl) && !videoUrl.match(/\.(mp4|webm|ogg)(\?.*)?$/i) && (
         <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">
-          This doesn't look like a YouTube/Vimeo link or a direct video file — it'll still be saved, but may not play correctly.
+          This doesn't look like a YouTube/Vimeo link or a direct video file, so it'll still be saved, but may not play correctly.
         </p>
       )}
 

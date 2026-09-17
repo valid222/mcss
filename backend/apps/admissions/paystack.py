@@ -3,12 +3,15 @@ import hmac
 import logging
 
 import requests
+from django.core.cache import cache
 
 from apps.settings_app.models import SystemSetting
 
 logger = logging.getLogger(__name__)
 
 BASE_URL = "https://api.paystack.co"
+_BANKS_CACHE_KEY = "paystack:banks:ngn"
+_BANKS_CACHE_TTL = 86400  # a day — bank codes change rarely; avoids hitting Paystack from every public form load
 
 
 def _secret_key():
@@ -73,6 +76,46 @@ def verify_transaction(reference):
     except requests.RequestException:
         logger.exception("Paystack verify_transaction request failed.")
         return None
+
+
+def list_banks():
+    """Every Nigerian bank Paystack knows about — the shared source of truth
+    for the payout sheet's "CBN Sort code" column, since Paystack's own
+    `code` field for each bank *is* the standard NIP/CBN institution code.
+    Staff pick a bank by name; the code that actually lands in the export
+    is resolved from this list, never typed by hand. Cached because this is
+    reachable from the public, unauthenticated Staff Registration form."""
+    cached = cache.get(_BANKS_CACHE_KEY)
+    if cached is not None:
+        return cached
+    secret_key = _secret_key()
+    if not secret_key:
+        return []
+    try:
+        resp = requests.get(
+            f"{BASE_URL}/bank",
+            headers={"Authorization": f"Bearer {secret_key}"},
+            params={"currency": "NGN", "country": "nigeria", "perPage": 200},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        payload = resp.json()
+        if not payload.get("status"):
+            return []
+    except requests.RequestException:
+        logger.exception("Paystack list_banks request failed.")
+        return []
+
+    banks = sorted(
+        (
+            {"name": b["name"], "code": b["code"]}
+            for b in payload.get("data", [])
+            if b.get("code") and b.get("active", True)
+        ),
+        key=lambda b: b["name"],
+    )
+    cache.set(_BANKS_CACHE_KEY, banks, _BANKS_CACHE_TTL)
+    return banks
 
 
 def verify_signature(raw_body, signature_header):

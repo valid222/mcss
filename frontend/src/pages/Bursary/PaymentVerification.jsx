@@ -63,7 +63,7 @@ export default function BursaryPaymentVerification() {
                       <td className="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant">{p.invoice_description}</td>
                       <td className="px-lg py-3 font-body-md text-body-md text-on-surface">{p.amount}</td>
                       <td className="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant capitalize">{p.method.replace('_', ' ')}</td>
-                      <td className="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant">{p.reference || '—'}</td>
+                      <td className="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant">{p.reference || 'N/A'}</td>
                       <td className="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant">{new Date(p.paid_at).toLocaleDateString()}</td>
                       <td className="px-lg py-3 text-right">
                         <Button variant="secondary" size="sm" iconLeft="verified" onClick={() => handleVerify(p)} disabled={verifyingId === p.id}>

@@ -90,14 +90,14 @@ export default function StudentDashboard() {
                 icon="analytics"
                 iconTone="secondary"
                 label="Latest Exam Average"
-                value={average != null ? `${average}%` : '—'}
+                value={average != null ? `${average}%` : 'N/A'}
                 helperText={exams[0]?.name || 'No published results yet'}
               />
               <StatCard
                 icon="calendar_month"
                 iconTone="tertiary"
                 label="Attendance"
-                value={attendanceRate != null ? `${attendanceRate}%` : '—'}
+                value={attendanceRate != null ? `${attendanceRate}%` : 'N/A'}
                 helperText={attendanceRecords.length ? `${presentCount} of ${attendanceRecords.length} days present` : 'No records yet'}
               />
               <StatCard

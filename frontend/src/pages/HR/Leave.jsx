@@ -80,7 +80,7 @@ export default function HRLeave() {
                         <td className="px-lg py-4 font-body-md text-body-md font-semibold text-on-surface">{l.staff_name}</td>
                         <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant capitalize">{l.leave_type}</td>
                         <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{l.start_date} – {l.end_date}</td>
-                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{l.reason || '—'}</td>
+                        <td className="px-lg py-4 font-label-sm text-label-sm text-on-surface-variant">{l.reason || 'N/A'}</td>
                         <td className="px-lg py-4"><Badge tone={STATUS_TONE[l.status]}>{l.status}</Badge></td>
                         <td className="px-lg py-4 text-right whitespace-nowrap">
                           {l.status === 'pending' && (

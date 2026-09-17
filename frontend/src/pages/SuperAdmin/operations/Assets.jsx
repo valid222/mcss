@@ -39,7 +39,7 @@ export default function SuperAdminAssets() {
     <AdminCrudPage
       pageTitle="Assets"
       title="Assets"
-      subtitle="Fixed assets — equipment, furniture, and their assignment."
+      subtitle="Fixed assets: equipment, furniture, and their assignment."
       endpoint="/operations/assets"
       itemLabel="Asset"
       extraEndpoints={extraEndpoints}

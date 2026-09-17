@@ -121,7 +121,7 @@ export default function SuperAdminResults() {
   };
 
   return (
-    <DashboardPageShell pageTitle="Results / Marksheets" title="Results / Marksheets" subtitle="Enter exam scores by class and subject — CA and Exam split, or a single total — then review a student's compiled marksheet or report card." loading={loading} error={error} onReload={reload} skeletonCount={1}>
+    <DashboardPageShell pageTitle="Results / Marksheets" title="Results / Marksheets" subtitle="Enter exam scores by class and subject (CA and Exam split, or a single total), then review a student's compiled marksheet or report card." loading={loading} error={error} onReload={reload} skeletonCount={1}>
       {data && (
         <div>
           <div className="flex items-center gap-sm flex-wrap mb-md">
@@ -221,12 +221,12 @@ export default function SuperAdminResults() {
         </div>
       )}
 
-      <Drawer open={!!marksheetStudent} onClose={() => setMarksheetStudent(null)} title={marksheetStudent ? `Marksheet — ${marksheetStudent.full_name}` : ''}>
+      <Drawer open={!!marksheetStudent} onClose={() => setMarksheetStudent(null)} title={marksheetStudent ? `Marksheet: ${marksheetStudent.full_name}` : ''}>
         {!marksheet ? (
           <p className="font-body-md text-body-md text-on-surface-variant">Loading…</p>
         ) : (
           <div className="space-y-md">
-            <p className="font-label-sm text-label-sm text-on-surface-variant">{marksheet.exam.name} · {marksheet.student.class_arm || '—'}</p>
+            <p className="font-label-sm text-label-sm text-on-surface-variant">{marksheet.exam.name} · {marksheet.student.class_arm || 'N/A'}</p>
             {marksheet.subjects.length === 0 ? (
               <EmptyState icon="description" text="No scores entered yet." />
             ) : (
@@ -243,7 +243,7 @@ export default function SuperAdminResults() {
                     <tr key={row.subject}>
                       <td className="py-2 font-body-md text-body-md text-on-surface">{row.subject}</td>
                       <td className="py-2 font-body-md text-body-md text-on-surface">{row.score}/{row.max_score} ({row.percentage}%)</td>
-                      <td className="py-2 font-body-md text-body-md text-on-surface">{row.grade_info ? `${row.grade_info.grade} — ${row.grade_info.remark}` : '—'}</td>
+                      <td className="py-2 font-body-md text-body-md text-on-surface">{row.grade_info ? `${row.grade_info.grade}: ${row.grade_info.remark}` : 'N/A'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -259,7 +259,7 @@ export default function SuperAdminResults() {
       <Drawer
         open={!!reportCardStudent}
         onClose={() => setReportCardStudent(null)}
-        title={reportCardStudent ? `Report Card — ${reportCardStudent.full_name}` : ''}
+        title={reportCardStudent ? `Report Card: ${reportCardStudent.full_name}` : ''}
         footer={(
           <Button variant="primary" onClick={saveRemarks} disabled={remarksSaving}>
             {remarksSaving ? 'Saving…' : 'Save Report Card'}

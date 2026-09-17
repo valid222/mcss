@@ -43,7 +43,7 @@ export default function PrincipalCommunication() {
   return (
     <AppShell portalId="principal" pageTitle="Communication" user={{ name: user?.full_name || 'Principal' }}>
       <div className="space-y-lg sm:space-y-xl">
-        <PageHeader title="Communication" subtitle="Announcements and messages to staff and parents — it lands in their Notifications." />
+        <PageHeader title="Communication" subtitle="Announcements and messages to staff and parents. It lands in their Notifications." />
 
         <Card padding="lg" className="max-w-2xl">
           <form onSubmit={handleSend} className="space-y-lg">

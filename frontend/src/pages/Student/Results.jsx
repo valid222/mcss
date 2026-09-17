@@ -104,7 +104,7 @@ export default function StudentResults() {
                 <div>
                   <p className="font-label-sm text-label-sm text-outline uppercase tracking-tight">Class Position</p>
                   <p className="font-body-md font-bold text-primary">
-                    {report.class_position ? `${report.class_position} of ${report.class_size}` : '—'}
+                    {report.class_position ? `${report.class_position} of ${report.class_size}` : 'N/A'}
                   </p>
                 </div>
                 <div>
@@ -113,11 +113,11 @@ export default function StudentResults() {
                 </div>
                 <div>
                   <p className="font-label-sm text-label-sm text-outline uppercase tracking-tight">Average</p>
-                  <p className="font-body-md font-bold text-primary">{report.average != null ? `${report.average}%` : '—'}</p>
+                  <p className="font-body-md font-bold text-primary">{report.average != null ? `${report.average}%` : 'N/A'}</p>
                 </div>
                 <div>
                   <p className="font-label-sm text-label-sm text-outline uppercase tracking-tight">Status</p>
-                  {report.status ? <Badge tone="success">{report.status}</Badge> : <p className="font-body-md text-on-surface-variant">—</p>}
+                  {report.status ? <Badge tone="success">{report.status}</Badge> : <p className="font-body-md text-on-surface-variant">N/A</p>}
                 </div>
               </div>
             </Card>
@@ -142,12 +142,12 @@ export default function StudentResults() {
                     ) : report.subjects.map((s) => (
                       <tr key={s.subject}>
                         <td className="p-sm font-bold text-on-surface">{s.subject}</td>
-                        <td className="p-sm text-center text-on-surface">{s.ca1_score ?? '—'}</td>
-                        <td className="p-sm text-center text-on-surface">{s.ca2_score ?? '—'}</td>
-                        <td className="p-sm text-center text-on-surface">{s.exam_score ?? '—'}</td>
+                        <td className="p-sm text-center text-on-surface">{s.ca1_score ?? 'N/A'}</td>
+                        <td className="p-sm text-center text-on-surface">{s.ca2_score ?? 'N/A'}</td>
+                        <td className="p-sm text-center text-on-surface">{s.exam_score ?? 'N/A'}</td>
                         <td className="p-sm text-center font-bold text-on-surface">{s.total}/{s.max_score}</td>
-                        <td className="p-sm text-center text-secondary font-bold">{s.grade || '—'}</td>
-                        <td className="p-sm text-on-surface-variant text-sm">{s.remark || '—'}</td>
+                        <td className="p-sm text-center text-secondary font-bold">{s.grade || 'N/A'}</td>
+                        <td className="p-sm text-on-surface-variant text-sm">{s.remark || 'N/A'}</td>
                       </tr>
                     ))}
                   </tbody>

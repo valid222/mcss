@@ -68,7 +68,7 @@ export default function SuperAdminFinanceSettings() {
 
           <form onSubmit={handleSubmit} className="space-y-lg">
             {saveError && <p className="font-label-md text-label-md text-error bg-error-container/20 border border-error/20 rounded-lg px-md py-sm max-w-3xl">{saveError}</p>}
-            {saved && <p className="font-label-md text-label-md text-secondary bg-secondary-container/20 border border-secondary/20 rounded-lg px-md py-sm max-w-3xl">Saved — new invoices, receipts, and expenses will use the updated format.</p>}
+            {saved && <p className="font-label-md text-label-md text-secondary bg-secondary-container/20 border border-secondary/20 rounded-lg px-md py-sm max-w-3xl">Saved. New invoices, receipts, and expenses will use the updated format.</p>}
 
             <Card padding="lg" className="max-w-3xl">
               <h2 className="font-headline-md text-headline-md text-primary mb-md">Numbering</h2>

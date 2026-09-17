@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import IconButton from '../ui/IconButton.jsx';
 import SearchBox from './SearchBox.jsx';
 import ProfileMenu from './ProfileMenu.jsx';
@@ -13,7 +13,9 @@ const DEFAULT_LOGO = '/mcss-logo.png';
  * and focus mode live inside the account menu only now, not as separate
  * icons here.
  */
-export default function TopHeader({ wordmark, logoUrl, homePath = '/', portalId, notificationCount = 0 }) {
+export default function TopHeader({ wordmark, logoUrl, homePath = '/', portalId, notificationCount = 0, notificationsPath = null }) {
+  const navigate = useNavigate();
+
   return (
     <header className="sticky top-0 z-30 bg-surface border-b border-outline-variant h-16 flex items-center px-md sm:px-gutter">
       <div className="flex items-center justify-between w-full max-w-container-max mx-auto">
@@ -23,7 +25,12 @@ export default function TopHeader({ wordmark, logoUrl, homePath = '/', portalId,
         </Link>
         <div className="flex items-center gap-xs shrink-0">
           <SearchBox portalId={portalId} />
-          <IconButton icon="notifications" label="Notifications" badge={notificationCount > 0} />
+          <IconButton
+            icon="notifications"
+            label="Notifications"
+            badge={notificationCount > 0}
+            onClick={notificationsPath ? () => navigate(notificationsPath) : undefined}
+          />
           <ProfileMenu portalId={portalId} />
         </div>
       </div>
